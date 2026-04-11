@@ -1,0 +1,47 @@
+# 代码安全审计 Skills
+
+AI 驱动的代码安全审计框架。只关注有实际危害的漏洞，支持组合漏洞攻击链分析。
+
+## 核心原则
+
+1. **只报有实际危害的漏洞**：RCE、SQL 注入、文件操作、越权、未授权、SSRF 等能获取权限/数据的问题
+2. **不报无实际危害的问题**：DoS、CSRF 缺失、Cookie 标记、安全头缺失、代码规范、猜测性风险
+3. **全量审计 100% 覆盖**：禁止抽样，逐文件审阅
+4. **组合漏洞分析**：单漏洞审计后必须分析攻击链组合
+5. **反幻觉**：代码证据为王，宁漏报不误报
+
+## 审计流程
+
+```
+阶段 0（度量）→ 阶段 1（侦察）→ 阶段 2（审计）→ 阶段 3（覆盖率）→ 阶段 4（验证）→ 阶段 5（组合）→ 阶段 6（报告）
+```
+
+## 目录结构
+
+```
+├── SKILL.md                          # 总控协议
+├── shared/                           # 共享协议与配置
+│   ├── phase_definitions.md          # 阶段定义
+│   ├── anti_hallucination.md         # 反幻觉铁律
+│   ├── scope_policy.md              # 审计范围策略
+│   ├── report_fields.md             # 报告字段定义（严格约束）
+│   ├── verification_principles.md    # 验证原则
+│   ├── composite_vulnerability_analysis.md  # 组合漏洞协议
+│   ├── dimensions.md                # 10 个安全维度
+│   ├── large_project_audit.md       # 大项目审计约定
+│   ├── audit_output_layout.md       # 产出目录约定
+│   ├── coverage_matrix_template.md  # 覆盖矩阵模板
+│   ├── config/                      # Tier 规则、文件范围、优先级关键词
+│   └── tools/                       # 批次规划脚本
+├── skills/
+│   ├── audit-recon/                 # 阶段 1 侦察
+│   ├── audit-sink/                  # 阶段 2 Sink-driven
+│   ├── audit-control/               # 阶段 2 Control-driven
+│   ├── audit-validate/              # 阶段 4 验证（含知识库）
+│   └── audit-report/                # 阶段 6 报告（含模板）
+└── scripts/                         # 辅助脚本
+```
+
+## 使用方式
+
+对 AI 说：「开始审计」或「对 XXX 项目做安全审计」即可启动。
