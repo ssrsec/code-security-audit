@@ -1,6 +1,6 @@
 ---
 name: audit-sink
-description: 阶段 2 Sink-driven 审计。从危险 API 往上追踪数据流，判断用户输入是否可达 Sink，发现注入/反序列化/SSRF/文件操作等漏洞。
+description: 阶段 2 Sink-driven 数据流审计技能。由 audit-orchestrator 在 Phase 2 与 audit-control 并行调度，从危险 API（exec/eval/反序列化/SQL拼接/文件操作）往上反向追踪数据流，判断外部输入是否可达 Sink 且无有效过滤，发现 RCE/SQL注入/反序列化/SSRF/任意文件读写等漏洞。**同时输出 primitives_batch{N}.md 原语批次文件**（记录受约束的能力片段供 audit-composer-agent 做组合推理）。当 audit-orchestrator 进入 Phase 2 Sink-driven 轨道，或需要对特定 Sink 追踪数据流来源时触发。
 ---
 
 # Sink-driven 审计（阶段 2）
@@ -27,7 +27,7 @@ description: 阶段 2 Sink-driven 审计。从危险 API 往上追踪数据流�
 1. **精准读取**：超过 500 行的文件不要整文件 Read。先用 Grep 定位 Sink，再用 Read 的 offset/limit 只读前后 50-100 行。
 2. **调用链追踪器**：跨 2 个以上文件的数据流追踪，必须将每一跳写入 `audit/phase2/callchain_tracker.md` 再跳转到下一个文件，防止上下文丢失。格式：
 ```
-## com-001: [Sink 类型]
+## cc-001: [Sink 类型]
 1. 入口: UserController.java:45 — 参数 userId 来自 @RequestParam
 2. 中转: UserService.java:102 — 传入 findUser() 的 id 参数
 3. Sink: UserDao.java:33 — 拼接进 SQL 字符串
@@ -76,6 +76,11 @@ description: 阶段 2 Sink-driven 审计。从危险 API 往上追踪数据流�
 - 每一跳标注**文件:行号**
 - 无法确认的跳标"待确认"，整条链标为待验证
 - 代码片段仅来自 Read，不得编造
+
+## 原语记录（与 findings 并行）
+
+发现能力片段但不构成独立漏洞时，按 `skills/audit-primitives/SKILL.md` 格式写入 `audit/phase2/primitives_batch{N}.md`。
+无原语时也须创建该文件并写入 `> 本批次未发现原语。`
 
 ## 输出
 

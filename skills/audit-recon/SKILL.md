@@ -1,6 +1,6 @@
 ---
 name: audit-recon
-description: 阶段 1 审计侦察。技术栈识别、入口枚举、Tier 分类、覆盖矩阵初始化、应审文件列表、端点清单、Sink 清单。
+description: 阶段 1 审计侦察技能。由 audit-orchestrator 在 Phase 1 调度，执行技术栈识别、API 端点枚举、Tier 分类（T1/T2/T3）、覆盖矩阵初始化、应审文件列表生成、危险 Sink 清单整理。当用户说「开始侦察」「识别技术栈」「枚举端点」，或 audit-orchestrator 进入 Phase 1 时触发。
 ---
 
 # 审计侦察（阶段 1）

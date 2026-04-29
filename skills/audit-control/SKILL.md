@@ -1,6 +1,6 @@
 ---
 name: audit-control
-description: 阶段 2 Control-driven 审计。从端点检查认证/授权/校验是否缺失，发现越权、未授权访问、认证绕过等漏洞。
+description: 阶段 2 Control-driven 认证授权审计技能。由 audit-orchestrator 在 Phase 2 与 audit-sink 并行调度，从 API 端点出发检查认证/授权/校验控制是否缺失，发现未授权访问、越权（水平/垂直）、认证绕过、Token 伪造等漏洞。**同时输出 primitives_batch{N}.md 原语批次文件**（记录 authn_bypass/authz_bypass/token_forgery/open_redirect 等能力片段供 audit-composer-agent 做组合推理）。当 audit-orchestrator 进入 Phase 2 Control-driven 轨道，或需要审查接口鉴权缺失时触发。
 ---
 
 # Control-driven 审计（阶段 2）
@@ -75,7 +75,7 @@ description: 阶段 2 Control-driven 审计。从端点检查认证/授权/校�
 
 ### 5. 授权层设计审计
 
-发现项目存在 URL/路由级权限控制时，按 `authorization_model.md` 检查：
+发现项目存在 URL/路由级权限控制时，按插件内 `skills/audit-validate/resources/knowledge/authorization_model.md` 检查：
 - 匹配方式是否过宽（子串/前缀导致绕过）
 - 权限表是否有遗漏
 - 白名单与默认策略是否安全
@@ -92,6 +92,11 @@ description: 阶段 2 Control-driven 审计。从端点检查认证/授权/校�
 - Sink-driven：发现"危险代码存在且数据可达"
 - Control-driven：发现"该有的安全控制没有"
 - 两者并行执行，互补覆盖
+
+## 原语记录（与 findings 并行）
+
+发现能力片段但不构成独立漏洞时，按 `skills/audit-primitives/SKILL.md` 格式写入 `audit/phase2/primitives_batch{N}.md`。
+无原语时也须创建该文件并写入 `> 本批次未发现原语。`
 
 ## 输出
 

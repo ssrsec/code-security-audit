@@ -1,6 +1,6 @@
 ---
 name: audit-report
-description: 阶段 6 最终报告生成。将已验证漏洞和组合漏洞合并为唯一交付报告，严格按报告字段定义输出。
+description: 阶段 6 最终报告生成技能。由 audit-orchestrator 在 Phase 4+5 全部完成后调度，将 findings_verified.md（已验证漏洞）、composite_findings.md（漏洞组合攻击链）和 primitive_chains.md（原语组合攻击链）合并为唯一交付报告 audit/security_audit_report.md。报告严格按 5 章节格式输出：一、审计总结；二、漏洞汇总表；三、漏洞详情；四、组合漏洞摘要（4.1 漏洞组合 + 4.2 原语组合）；五、总体安全建议。完成后强制清理所有中间过程文件。
 ---
 
 # 审计报告生成（阶段 6）
@@ -53,6 +53,10 @@ description: 阶段 6 最终报告生成。将已验证漏洞和组合漏洞合�
 
 ### 四、组合漏洞摘要
 
+#### 4.1 漏洞组合攻击链（基于已确认漏洞）
+
+来源：`audit/phase3/composite_findings.md`
+
 #### 【组合漏洞汇总表】
 | 组合漏洞新编号（必须是由 >=2 个已知单漏洞组合而成） | 涉及漏洞组合 | 攻击场景描述 | 组合后漏洞等级 |
 |--------------|------------|------------|--------------|
@@ -64,6 +68,22 @@ description: 阶段 6 最终报告生成。将已验证漏洞和组合漏洞合�
 - 攻击链（先通过漏洞xxx，实现/拿到xxx，然后再利用漏洞xxx完成xxx）
 
 若无组合漏洞则写「经分析，未发现可组合利用的漏洞链。」
+
+#### 4.2 原语组合攻击链（基于能力片段推导）
+
+来源：`audit/phase5/primitive_chains.md`（audit-composer-agent 产出）
+
+**写入规则：**
+- 遍历 primitive_chains.md 中所有 chain 条目，按格式写入：
+
+| 编号 | 攻击链名称 | 参与原语 | 推导等级 | 置信度 |
+|------|-----------|---------|---------|--------|
+| chain-001 | 受限写+Cron劫持→RCE | prim-001+prim-007 | 高危 | ✓ confirmed |
+| chain-002 | SSRF+云凭证→密钥窃取 | prim-003+prim-011 | 高危 | ⚠ suspected |
+
+- `suspected` 链必须进入报告，不得丢弃，用 `⚠ 待验证` 标注
+- `confirmed` 链用 `✓ 已确认` 标注
+- 无命中时写：`> 经原语组合分析，未发现可组合的原语攻击链。`
 
 ### 五、总体安全建议
 
@@ -91,6 +111,6 @@ description: 阶段 6 最终报告生成。将已验证漏洞和组合漏洞合�
 
 
 ## 强制清理纪律
-- 在确保最终报告 `audit/security_audit_report.md` 已经完全写入磁盘并且无误之后，**必须使用 Bash 工具执行 `rm -rf audit/phase0 audit/phase1 audit/phase2 audit/phase3`**，彻底清理掉所有的中间过程文件！不得以”保留以便追溯”为由跳过此步骤！
+- 在确保最终报告 `audit/security_audit_report.md` 已经完全写入磁盘并且无误之后，**必须使用 Bash 工具执行 `rm -rf audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5`**，彻底清理掉所有的中间过程文件！不得以”保留以便追溯”为由跳过此步骤！
 - **⚠️ 严禁删除 `audit/decompiled` 目录**：反编译输出目录是审计的源代码基础，不是中间文件。清理命令**不得包含** `audit/decompiled`。
 - 报告生成并清理完成后，不得向用户提出任何附加选项（如”是否需要更改排版”、”是否要继续深入”），只能静默输出完成通知。

@@ -1,6 +1,6 @@
 ---
 name: audit-validate
-description: 阶段 4 漏洞验证与评分。查阅知识库验证成立条件、CVSS评分、反幻觉检查、组合漏洞分析。只产出有实际危害的漏洞，不产出风险点。
+description: 阶段 4 漏洞验证与评分技能，同时承担漏洞级别的组合分析（Phase 5 漏洞组合轨道）。由 audit-orchestrator 在 Phase 4 调度，对 Phase 2 候选漏洞查阅知识库验证成立条件、CVSS评分、反幻觉检查，输出 findings_verified.md；Phase 5 继续执行**漏洞组合分析**，基于已确认/待验证漏洞发现组合攻击链，输出 composite_findings.md。**注意**：此技能只负责漏洞+漏洞的组合推理，原语（primitives）组合由 audit-composer-agent 在 Phase 5 并行负责，两者不交叉。只产出有实际危害的漏洞，不产出风险点。
 ---
 
 # 漏洞验证（阶段 4）
