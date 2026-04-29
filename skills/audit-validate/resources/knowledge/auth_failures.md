@@ -1,6 +1,6 @@
 # 认证与身份验证缺陷成立条件（通用）
 
-供 阶段 4 判断；**框架无关**，对应 **OWASP Top 10 A07:2021 Identification and Authentication Failures**。与授权（authorization_model.md）互补：认证解决“是谁”，授权解决“能做什么”。
+供阶段 4 判断；**框架无关**，对应 **OWASP Top 10 A07:2021 Identification and Authentication Failures**。与授权（authorization_model.md）互补：认证解决"是谁"，授权解决"能做什么"。
 
 ---
 
@@ -49,7 +49,7 @@
 ## 与授权、CSRF 的区分
 
 - **授权**：见 authorization_model.md（谁有权访问哪条 URL/资源）。
-- **CSRF**：需用户交互（点击恶意链接等）；按 scope_policy 默认不纳入“真实危害”，除非例外（如一次点击即高价值操作）。
+- **CSRF**：需用户交互（点击恶意链接等）；按 scope_policy 默认不纳入"真实危害"，除非例外（如一次点击即高价值操作）。
 
 ---
 
@@ -57,4 +57,4 @@
 
 - **Read 代码/配置**：登录逻辑、Session/Token 生成与校验、密码重置流程、账户锁定与重试。
 - **多语言/框架**：各框架的 auth 中间件、session 存储、password hashing；与 cryptographic_failures、authorization_model 联合使用。
-- **报告约定**：注明认证方式与缺陷类型；若依赖部署（如是否启用 MFA），可标 **V1 待验证**，并说明需要验证的部署条件。
+- **报告约定**：注明认证方式与缺陷类型；若依赖部署（如是否启用 MFA），可标 **V1 待验证（HYPOTHESIS）**，并说明需要验证的部署条件。
