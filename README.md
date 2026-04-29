@@ -1,90 +1,50 @@
-# code-security-audit
+# 代码安全审计 Skills
 
-面向有源码白盒场景的 LLM 代码安全审计 skill。它把 LLM 约束为工程化审计流水线：先输出项目架构画像，再按 OWASP/ASVS/WSTG/CWE 建立覆盖矩阵，之后执行双轨审计、PoC/测试验证、组合漏洞分析和最终合规报告。
+AI 驱动的代码安全审计框架。只关注有实际危害的漏洞，支持组合漏洞攻击链分析。
 
-## 核心目标
+## 核心原则
 
-1. 输出项目基础架构：目录结构、开发语言、框架、中间件、数据库、依赖、入口、鉴权与授权逻辑。
-2. 按 OWASP ASVS/WSTG/Top 10 和 CWE 建立覆盖矩阵，避免只审模型容易想到的漏洞。
-3. 同时执行 Sink-driven 与 Control-driven 审计，覆盖注入、反序列化、SSRF、文件漏洞、认证绕过、越权、IDOR/BOLA、多租户隔离和业务逻辑。
-4. 对 finding 执行 V0-V4 验证分级；优先使用用户测试环境，没有测试环境时生成最小化单元或集成测试。
-5. 输出最终报告与可复核证据包，而不是只给不可追溯的漏洞摘要。
-
-## 工程架构
-
-```mermaid
-flowchart TB
-  SRC["授权源码/反编译代码"] --> R0["阶段 0<br/>范围/度量/反编译"]
-  R0 --> R1["阶段 1<br/>项目画像/攻击面"]
-  R1 --> R2["阶段 2<br/>Sink + Control 双轨审计"]
-  R2 --> R3["阶段 3<br/>覆盖率/反向审查"]
-  R3 --> R4["阶段 4<br/>PoC/测试验证"]
-  R4 --> R5["阶段 5<br/>组合攻击链"]
-  R5 --> R6["阶段 6<br/>报告/证据包"]
-  R1 --> A["project_inventory<br/>auth_model<br/>owasp_coverage_matrix"]
-  R4 --> B["validation_results<br/>audit/poc"]
-  R6 --> C["security_audit_report<br/>audit/final"]
-```
-
-详细架构见 `shared/architecture_design.md`，研究依据见 `shared/research_basis.md`。
-
-## 目录结构
-
-```text
-code-security-audit/
-├── SKILL.md
-├── README.md
-├── shared/
-│   ├── architecture_design.md
-│   ├── research_basis.md
-│   ├── whitebox_audit_schema.md
-│   ├── phase_definitions.md
-│   ├── anti_hallucination.md
-│   ├── verification_principles.md
-│   ├── report_fields.md
-│   ├── composite_vulnerability_analysis.md
-│   ├── audit_output_layout.md
-│   ├── coverage_matrix_template.md
-│   ├── scope_policy.md
-│   ├── dimensions.md
-│   ├── large_project_audit.md
-│   ├── decompilation.md
-│   ├── config/
-│   └── tools/
-├── skills/
-│   ├── audit-recon/
-│   ├── audit-sink/
-│   ├── audit-control/
-│   ├── audit-validate/
-│   └── audit-report/
-└── scripts/
-```
+1. **只报有实际危害的漏洞**：RCE、SQL 注入、文件操作、越权、未授权、SSRF 等能获取权限、数据、代码执行或业务影响的问题
+2. **低影响问题默认不进漏洞表**：DoS、CSRF、Cookie 标记、安全头等只有在证明具体资产影响、组合链、权限突破或合规要求时才进入漏洞表
+3. **三层覆盖率 100%**：文件枚举、静态扫描、高风险深读分别记录，禁止把扫描覆盖表述成逐行深读
+4. **组合漏洞分析**：单漏洞审计后必须分析攻击链组合
+5. **反幻觉**：代码证据为王，宁漏报不误报
 
 ## 审计流程
 
-```text
-阶段 0 范围/度量/反编译
--> 阶段 1 项目画像/攻击面/覆盖矩阵
--> 阶段 2 Sink-driven + Control-driven 全量审计
--> 阶段 3 覆盖率校验 + finding-skeptic
--> 阶段 4 V0-V4 验证 + PoC/测试 + CVSS
--> 阶段 5 组合漏洞与攻击链
--> 阶段 6 最终报告与证据包
+```
+阶段 0（度量）→ 阶段 1（侦察）→ 阶段 2（审计）→ 阶段 3（覆盖率）→ 阶段 4（验证）→ 阶段 5（组合）→ 阶段 6（报告）
 ```
 
-## 关键产物
+## 目录结构
 
-| 产物 | 说明 |
-|------|------|
-| `audit/phase1/project_inventory.json` | 项目语言、框架、依赖、数据存储、入口和安全控制 |
-| `audit/phase1/architecture_inventory.md` | 模块结构、数据流、信任边界和高价值资产 |
-| `audit/phase1/auth_model.md` | 认证、会话、授权、租户隔离和拦截链 |
-| `audit/phase1/owasp_coverage_matrix.md` | OWASP/ASVS/WSTG/CWE 覆盖矩阵 |
-| `audit/phase4/validation_results.json` | V0-V4 验证等级、命令、结果和限制 |
-| `audit/poc/` | PoC、单测、集成测试或 E2E 验证材料 |
-| `audit/security_audit_report.md` | 最终合规报告 |
-| `audit/final/` | 可复核证据包 |
+```
+├── SKILL.md                          # 总控协议
+├── shared/                           # 共享协议与配置
+│   ├── phase_definitions.md          # 阶段定义
+│   ├── state_schema.md               # audit/state.json 与 finding 生命周期
+│   ├── coverage_policy.md            # 三层覆盖率与 Tier 覆盖策略
+│   ├── poc_safety_policy.md          # PoC 安全边界与运行时变量规则
+│   ├── anti_hallucination.md         # 反幻觉铁律
+│   ├── scope_policy.md              # 审计范围策略
+│   ├── report_fields.md             # 报告字段定义（严格约束）
+│   ├── verification_principles.md    # 验证原则
+│   ├── composite_vulnerability_analysis.md  # 组合漏洞协议
+│   ├── dimensions.md                # 10 个安全维度
+│   ├── large_project_audit.md       # 大项目审计约定
+│   ├── audit_output_layout.md       # 产出目录约定
+│   ├── coverage_matrix_template.md  # 覆盖矩阵模板
+│   ├── config/                      # Tier 规则、文件范围、优先级关键词
+│   └── tools/                       # 批次规划脚本
+├── skills/
+│   ├── audit-recon/                 # 阶段 1 侦察
+│   ├── audit-sink/                  # 阶段 2 Sink-driven
+│   ├── audit-control/               # 阶段 2 Control-driven
+│   ├── audit-validate/              # 阶段 4 验证（含知识库）
+│   └── audit-report/                # 阶段 6 报告（含模板）
+└── scripts/                         # 辅助脚本
+```
 
 ## 使用方式
 
-对 AI 说「开始审计」或「对 XXX 项目做安全审计」即可启动。若审计中断，说「继续审计」会从已落盘产物恢复。
+对 AI 说：「开始审计」或「对 XXX 项目做安全审计」即可启动。

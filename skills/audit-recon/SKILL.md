@@ -31,7 +31,7 @@ description: 阶段 1 白盒审计侦察。输出项目画像、架构信息、�
 
 ### 2. 认证与授权模型
 
-必须单独分析并输出 `audit/phase1/auth_model.md`：
+必须按 `shared/framework_authz_checklist.md` 单独分析并输出 `audit/phase1/auth_model.md` 与 `audit/phase1/framework_authz_map.md`：
 
 - 登录、注册、找回密码、SSO/OAuth/OIDC、回调入口。
 - session/JWT/API key/cookie/header 的存储位置、生命周期和刷新逻辑。
@@ -39,10 +39,11 @@ description: 阶段 1 白盒审计侦察。输出项目画像、架构信息、�
 - RBAC/ABAC/ACL/自定义权限模型。
 - 资源归属校验、租户隔离、管理员权限边界。
 - 白名单、匿名接口、内部接口、调试接口。
+- 框架专项：Spring Security、Shiro、Sa-Token、RuoYi/Jeecg、Django DRF、NestJS Guard、Laravel Middleware、ASP.NET Authorization 等项目实际使用框架。
 
 无法确认时写入 `unknowns`，不得猜测。
 
-### 3. 依赖与供应链画像
+### 3. 依赖、Secret 与供应链画像
 
 输出 `audit/phase1/dependency_list.json`：
 
@@ -50,6 +51,12 @@ description: 阶段 1 白盒审计侦察。输出项目画像、架构信息、�
 - 已知高危组件线索：Fastjson、XStream、Jackson polymorphic、Log4j、Struts、Spring Cloud Gateway、模板引擎、反序列化库。
 - Java classpath / `WEB-INF/lib` / `lib` / `node_modules` / `vendor` 中可能作为 gadget 的依赖。
 - Secret、私有 registry、脚本安装钩子、postinstall 等供应链线索。
+
+按 `shared/secret_detection.md` 输出 `audit/phase1/secret_inventory.md`：
+
+- 硬编码账号、密码、API key、JWT secret、数据库/Redis/MQ 连接串、私钥、证书、云厂商 AK/SK。
+- 标记来源文件:行号、加载 profile、是否生产可达、是否已脱敏、验证等级。
+- 明显示例值或不可达测试值必须记录排除理由。
 
 ### 4. 入口枚举
 
@@ -102,7 +109,9 @@ Tier 规则：
 | `audit/phase1/project_inventory.json` | 项目画像结构化数据 |
 | `audit/phase1/architecture_inventory.md` | 架构、模块、数据流、信任边界 |
 | `audit/phase1/auth_model.md` | 认证、授权、租户、拦截链 |
+| `audit/phase1/framework_authz_map.md` | 框架级鉴权/授权专项清单 |
 | `audit/phase1/dependency_list.json` | 依赖、版本、供应链和 gadget 线索 |
+| `audit/phase1/secret_inventory.md` | 硬编码账号、密码、密钥、Token、连接串、证书 |
 | `audit/phase1/endpoint_list.md` | 全部入口 |
 | `audit/phase1/sink_list.md` | 危险 API 和敏感能力 |
 | `audit/phase1/in_scope_files.txt` | 覆盖率分母 |

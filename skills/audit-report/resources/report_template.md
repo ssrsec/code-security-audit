@@ -1,125 +1,134 @@
 # 安全审计报告
 
+---
+
 ## 一、项目代码审计总结
 
-| 字段 | 内容 |
+| 项目 | 内容 |
 |------|------|
-| 审计目标 | {{ project_name }}（{{ project_path }}） |
-| 审计模式 | {{ audit_mode }} |
-| 版本/Commit | {{ commit_or_version }} |
-| 开始时间 | {{ start_time_from_phase0 }} |
-| 结束时间 | {{ generated_at_by_date_command }} |
-| 文件覆盖率 | 已审 {{ reviewed_count }} / 应审 {{ in_scope_count }} = {{ completion_pct }}% |
-| 标准覆盖 | {{ owasp_coverage_summary }} |
-| 验证统计 | V1 {{ v1_count }} / V2 {{ v2_count }} / V3 {{ v3_count }} / V4 {{ v4_count }} |
+| **审计目标** | {{ project_name }}（{{ project_path }}） |
+| **开始时间** | {{ 读取 audit/phase0/metrics.md 中的阶段 0 开始时间 }} |
+| **结束时间** | {{ 执行 bash date 命令获取当前时间填入 }} |
+| **覆盖率** | 已审 {{ reviewed_count }} / 应审 {{ in_scope_count }} = {{ completion_pct }}% |
+| **项目技术栈** | {{ tech_stack }} |
 
-### 发现统计
+### 审计发现总结
 
-- 严重：{{ critical }} 个
-- 高危：{{ high }} 个
-- 中危：{{ medium }} 个
-- 低危：{{ low }} 个
-- 已确认：{{ confirmed_count }} 个
-- 待验证：{{ pending_count }} 个
-- 组合漏洞：{{ chain_count }} 个
+- **漏洞总数**：{{ total_count }} 个
+  - 严重：{{ critical }} 个
+  - 高危：{{ high }} 个
+  - 中危：{{ medium }} 个
+  - 低危：{{ low }} 个
+- **组合漏洞**：{{ chain_count }} 个
+- **漏洞类型分布**：
+  - （如：SQL 注入 X 个、RCE X 个、越权 X 个、未授权 X 个、文件操作 X 个...）
+- **触发条件统计**：
+  - 无需认证：{{ unauth_count }} 个
+  - 普通用户认证：{{ low_priv_count }} 个
+  - 管理员认证：{{ admin_count }} 个
 
-## 二、项目基础架构画像
+---
 
-### 2.1 项目结构与技术栈
+## 二、漏洞汇总表
 
-{{ architecture_summary }}
+| 漏洞编号 | 漏洞名称 | 漏洞等级 | 验证状态 | 所需条件 |
+|---------|---------|---------|---------|---------|
+| vul-001 | （漏洞类型 + 关键条件） | 严重/高危/中危/低危 | 已确认/待验证 | 1. 前置条件：无<br>2. 访问权限：管理员 |
 
-### 2.2 认证与授权逻辑
+---
 
-{{ auth_model_summary }}
+## 三、漏洞详情
 
-### 2.3 依赖与供应链
-
-{{ dependency_summary }}
-
-### 2.4 信任边界与高价值资产
-
-{{ trust_boundary_summary }}
-
-## 三、审计范围与覆盖矩阵
-
-### 3.1 文件和模块覆盖
-
-{{ file_and_module_coverage }}
-
-### 3.2 OWASP/ASVS/WSTG/CWE 覆盖
-
-{{ standards_coverage }}
-
-### 3.3 不适用项、未覆盖项和限制
-
-{{ limitations }}
-
-## 四、漏洞汇总表
-
-| 漏洞编号 | 漏洞名称 | 严重性 | 验证状态 | 验证等级 | CWE | OWASP/ASVS/WSTG | 访问权限 | 影响资产 |
-|---------|---------|--------|----------|----------|-----|-----------------|----------|----------|
-| WB-001 | {{ title }} | {{ severity }} | {{ status }} | {{ validation_level }} | {{ cwe }} | {{ owasp_mapping }} | {{ privilege }} | {{ asset }} |
-
-## 五、漏洞详情
-
-### WB-001：{{ title }}
+### vul-001：（漏洞名称）
 
 | 字段 | 内容 |
 |------|------|
-| 漏洞编号 | WB-001 |
-| 漏洞名称 | {{ title }} |
-| 漏洞描述 | {{ description }} |
-| 严重性 | {{ severity }} |
-| 验证状态 | {{ status }} |
-| 验证等级 | {{ validation_level }} |
-| CWE / OWASP | {{ cwe_owasp }} |
-| CVSS | {{ cvss_vector_score_and_rationale }} |
-| 前置条件 | {{ preconditions }} |
-| 访问权限 | {{ privilege_required }} |
-| 影响资产 | {{ impacted_assets }} |
-| 调用链 | {{ call_chain_with_file_lines }} |
-| 代码证据 | {{ code_evidence_summary }} |
-| 待验证内容 | {{ pending_validation_items_if_any }} |
+| **漏洞编号** | vul-001 |
+| **漏洞名称** | 标准漏洞名称（不要拼接等级字段，不要用类似“GET /api/xxx...”这类不标准的名称） |
+| **漏洞描述** | 简要说明漏洞原理和危害（不要引用过程文件）。 |
+| **漏洞等级** | 严重 / 高危 / 中危 / 低危 |
+| **验证状态** | 已确认 / 待验证 |
+| **CVSS评分** | 完整向量字符串 `CVSS:3.1/AV:X/AC:X/PR:X/UI:X/S:X/C:X/I:X/A:X → X.X`，禁止使用"约" |
+| **前置条件** | 具体前置条件（全报告术语必须统一，禁止敷衍描述） |
+| **访问权限** | 具体所需的访问权限（禁止使用“视具体接口：多为已登录 Web 会话”这种敷衍描述，必须明确列出） |
+| **调用链** | [入口文件:行号](相对路径) → [中转文件:行号](相对路径) → [Sink文件:行号](相对路径) |
 
-#### PoC/测试
+【复现步骤】
+1、（前置条件说明，如需要获取什么账号权限）
 
-{{ poc_or_test_steps_expected_actual_cleanup }}
+2、使用以下安全复现证据验证漏洞（必须填入漏洞实际请求、脚本或测试，不要提供空模板）：
 
-#### 修复建议
+```http
+POST /api/xxx HTTP/1.1
+Host: target.com
+Content-Type: application/json
+Authorization: Bearer {{access-token}}
 
-{{ remediation_with_files_code_and_regression_tests }}
+{"参数": "最小安全复现值"}
+```
 
-#### 残余风险
+预期安全行为：（正常应返回 401/403、拒绝参数、查询被参数化、命令不执行等）
 
-{{ residual_risk }}
+实际结果：（响应码、响应体关键字段、stdout/stderr、日志或测试断言）
 
-## 六、组合漏洞与攻击链
+判定标准：（为什么该结果足以证明漏洞存在）
 
-{{ composite_findings }}
+清理步骤：（删除测试数据、回滚事务、撤销账号或说明无需清理）
 
-## 七、PoC/测试验证结果
+【实战利用】
 
-{{ validation_results_summary }}
+场景 1：（给出完整请求、payload、脚本、测试断言或安全等价证明，并说明达成的具体效果）
 
-## 八、总体安全建议与残余风险
+场景 2：（高危/严重漏洞必须提供；待验证漏洞标注条件假设和运行时待确认点）
 
-### 8.1 架构层面
+影响边界：（说明该漏洞可造成的权限、数据、代码执行、内网访问、业务或组合链影响。不得引入阶段 4/5 未支撑的新漏洞。）
 
-{{ architecture_recommendations }}
+【修复建议】
 
-### 8.2 开发流程
+（具体修复方案，包含修改哪个文件、代码示例，说明修复原理）
 
-{{ sdlc_recommendations }}
+---
 
-### 8.3 高频漏洞统一修复
+（重复以上结构，每条漏洞一个章节）
 
-{{ common_fix_recommendations }}
+---
 
-### 8.4 依赖与安全运维
+## 四、组合漏洞摘要
 
-{{ operations_recommendations }}
+### 【组合漏洞汇总表】
 
-### 8.5 残余风险
+| 组合漏洞新编号（必须是由 >=2 个已知单漏洞组合而成，单独的一个漏洞不能作为组合漏洞） | 涉及漏洞组合 | 攻击场景描述 | 组合后漏洞等级 |
+|--------------|------------|------------|--------------|
+| com-001 | vul-XXX + vul-XXX | （简述攻击过程） | 严重/高危 |
 
-{{ residual_risk_summary }}
+### 【组合漏洞详情】
+
+#### com-001
+
+**组合**：vul-XXX（名称）+ vul-XXX（名称）
+**漏洞等级（组合后）**：严重
+**攻击链**：
+1. 先通过 vul-XXX 的（漏洞名称），实现/拿到（什么能力/信息）
+2. 然后利用 vul-XXX 的（漏洞名称），完成（最终危害）
+
+---
+
+（若无组合漏洞则写：「经分析，未发现可组合利用的漏洞链。」）
+
+---
+
+## 五、总体安全建议
+
+### 架构层面
+（根据审计发现给出架构级安全建议）
+
+### 开发流程
+（安全开发相关建议）
+
+### 高频漏洞修复
+（针对本次审计中出现频率较高的漏洞类型，给出统一修复方案）
+
+### 安全运维
+（依赖更新、监控告警等建议）
+
+<!-- 报告到此结束。严禁在第五章节之后添加任何内容（如"报告说明"、"免责声明"、"附录"等）。 -->

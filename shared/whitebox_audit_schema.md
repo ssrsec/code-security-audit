@@ -39,7 +39,17 @@
     "resourceOwnershipChecks": [],
     "tenantIsolation": ""
   },
+  "frameworkAuthz": {
+    "framework": "",
+    "globalAuthn": [],
+    "globalAuthz": [],
+    "anonymousRoutes": [],
+    "permissionTables": [],
+    "tenantFilters": [],
+    "unknowns": []
+  },
   "dependencies": [],
+  "secrets": [],
   "sensitiveSinks": [],
   "securityControls": [],
   "unknowns": []
@@ -94,9 +104,9 @@
 
 ```json
 {
-  "id": "WB-AUTHZ-001",
+  "id": "vul-001",
   "title": "",
-  "category": "authz | authn | injection | deserialization | ssrf | file | crypto | secret | business-logic | supply-chain",
+  "category": "authz | authn | injection | deserialization | ssrf | file | crypto | secret | info-leak | business-logic | supply-chain | chain",
   "owasp": [],
   "asvs": [],
   "wstg": [],
@@ -120,6 +130,7 @@
   "controlsMissing": [],
   "attackPreconditions": [],
   "impact": "",
+  "pocEvidenceRequired": [],
   "skepticChecksNeeded": [],
   "notes": ""
 }
@@ -139,10 +150,10 @@
 
 ```json
 {
-  "findingId": "WB-AUTHZ-001",
+  "findingId": "vul-001",
   "validationLevel": "V4",
   "environment": "user-provided-test-env | local-integration | unit-test | static-only",
-  "pocPath": "audit/poc/WB-AUTHZ-001/",
+  "pocPath": "audit/poc/vul-001/",
   "commands": [],
   "expected": "",
   "actual": "",
@@ -157,6 +168,24 @@
     "destructive": false,
     "cleanup": "",
     "limitations": []
+  },
+  "evidence": {
+    "request": "",
+    "response": "",
+    "stdout": "",
+    "stderr": "",
+    "exitCode": null,
+    "timingBaselineMs": null,
+    "timingAttackMs": null,
+    "assertions": [],
+    "artifacts": [
+      {
+        "path": "",
+        "sha256": "",
+        "redacted": true
+      }
+    ],
+    "redactionNotes": []
   }
 }
 ```
@@ -183,5 +212,6 @@
 - `reproduce.py`：非 HTTP 或多步骤验证脚本。
 - `test_*.py`、`*.spec.ts`、`*.test.ts`、`*Test.java`：最小化测试。
 - `result.md`：实际执行结果、截图或日志摘要。
+- `evidence.json`：执行时间、环境、请求/命令、输出、hash、脱敏说明。
 
 PoC 必须避免破坏性操作。确需证明高危影响时，用无害命令、只读接口、mock 资源或回滚事务。

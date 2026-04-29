@@ -1,105 +1,48 @@
 ---
 name: audit-report
-description: 阶段 6 最终报告生成。整合项目画像、覆盖矩阵、验证结果、PoC、组合漏洞、修复建议和残余风险，输出可交付报告与最终证据包。
+description: 阶段 6 最终报告生成。将已验证漏洞和组合漏洞合并为唯一交付报告，严格按报告字段定义输出。
 ---
 
 # 审计报告生成（阶段 6）
 
 ## 角色
 
-负责阶段 6：生成最终报告 `audit/security_audit_report.md`，并整理 `audit/final/` 证据包。报告全文使用简体中文，代码、payload、标准名和命令保持原文。
-
-## 输入
-
-- `audit/phase1/project_inventory.json`
-- `audit/phase1/architecture_inventory.md`
-- `audit/phase1/auth_model.md`
-- `audit/phase1/owasp_coverage_matrix.md`
-- `audit/phase2/coverage_status.json`
-- `audit/phase3/false_positive_notes.md`
-- `audit/phase4/validated_findings.md`
-- `audit/phase4/validation_results.json`
-- `audit/phase4/rejected_findings.md`
-- `audit/phase5/composite_findings.md`
-- `audit/poc/`
+负责 阶段 6：将 `audit/phase4/validated_findings.md` 和 `audit/phase5/composite_findings.md` 合并为**唯一交付报告** `audit/security_audit_report.md`。报告全文使用简体中文。
 
 ## 报告结构
 
-按 `shared/report_fields.md` 输出，至少包含：
+`shared/report_fields.md` 是报告字段、章节、漏洞准入、实战利用和反占位符规则的单一事实来源。生成报告时：
 
-1. 项目代码审计总结。
-2. 项目基础架构画像。
-3. 审计范围与覆盖矩阵。
-4. 漏洞汇总表。
-5. 漏洞详情。
-6. 组合漏洞与攻击链。
-7. PoC/测试验证结果。
-8. 总体安全建议与残余风险。
-
-## 必填内容
-
-### 项目基础架构
-
-必须从阶段 1 产物提炼：
-
-- 目录结构、语言、框架、构建系统、运行方式。
-- 认证逻辑、授权逻辑、租户隔离、拦截器。
-- 入口清单摘要。
-- 依赖和供应链风险。
-- 信任边界和高价值资产。
-
-### 覆盖与限制
-
-必须说明：
-
-- 文件覆盖率：`已审 X / 应审 Y = 100%`。
-- OWASP/ASVS/WSTG/CWE 覆盖摘要。
-- 不适用项、未覆盖项和无法验证项。
-- 不得声称“发现所有漏洞”。
-
-### 漏洞详情
-
-每条漏洞必须包含：
-
-- 编号、名称、严重性、验证状态、验证等级。
-- CWE、OWASP、ASVS/WSTG、CVSS 向量和理由。
-- 前置条件、访问权限、影响资产。
-- 调用链和代码证据。
-- PoC/测试步骤、命令、预期结果、实际结果。
-- 修复建议和回归测试建议。
-- 待验证条件或残余风险。
-
-V0 不进入漏洞详情。V1 只能作为待验证。触发条件不成立的 finding 只在误报/排除摘要或残余风险中说明，不进入漏洞汇总表。
-
-## 证据包整理
-
-生成或复制：
-
-- `audit/final/project_inventory.json`
-- `audit/final/owasp_coverage_matrix.md`
-- `audit/final/validation_results.json`
-- `audit/final/poc_index.md`
-- `audit/final/residual_risk.md`
-
-`poc_index.md` 必须列出每个 PoC/测试的路径、验证等级、执行命令、安全限制和清理步骤。
+1. 读取 `shared/report_fields.md` 和 `resources/report_template.md`。
+2. 严格输出五个顶级章节：一、项目代码审计总结；二、漏洞汇总表；三、漏洞详情；四、组合漏洞摘要；五、总体安全建议。
+3. 每条漏洞必须完整内联复现步骤、实战利用和修复建议，不得用中间文件链接替代正文。
+4. 已确认与待验证漏洞都按 `shared/report_fields.md` 的 A/B 类准入标准处理，不得丢弃代码层面高度确认的待验证漏洞。
+5. 报告以第五章节结束，不得追加免责声明、附录或额外说明。
 
 ## 完成度校验
 
 报告生成前必须确认：
 
-- 覆盖率已达到 100% 或报告明确说明因平台/授权边界无法继续，并列入残余风险。
-- 阶段 4 已完成验证分级。
-- 阶段 5 已完成组合漏洞分析。
-- 每条漏洞字段完整。
-- 报告没有编造文件、行号、调用链、依赖版本、执行结果。
+- 覆盖率必须已达 100%。
+- `validated_findings.md` 中的漏洞验证和 `composite_findings.md` 的组合分析必须彻底完成。
+- 每条漏洞包含全部必填字段（缺少字段的退回 阶段 4 补充）。
+- 触发条件不成立的不列入报告。
 
-## 清理策略
+**严格纪律：严禁跳步。** 绝不允许在前面环节未彻底验证完的情况下说出“已提前交付总报告”这种话术。必须在接到明确进入 阶段 6 的信号（即 阶段 4 和组合分析均已彻底落盘完成）后，才开始输出此报告。
 
-- 保留 `audit/security_audit_report.md`、`audit/final/`、`audit/poc/`、`audit/decompiled/`。
-- 不强制删除阶段 1/4 关键证据；如需要清理，只清理临时草稿、重复批次和失败转换文件。
-- 不得执行会删除最终证据包的命令。
+## 反幻觉
+
+- 不引入 阶段 4 中不存在的新漏洞
+- 不修改漏洞的技术细节和等级（无正当理由时）
+- 报告准确反映代码审计实际状态
 
 ## 输出
 
-- `audit/security_audit_report.md`
-- `audit/final/`
+- **唯一交付报告**：`audit/security_audit_report.md`
+
+
+## 过程文件归档纪律
+- 最终报告写入后，默认保留 `audit/phase0` 到 `audit/phase5`、`audit/poc` 和 `audit/state.json`，用于证据追溯、复核和断点恢复。
+- 如需要交付精简包，可将过程文件复制或移动到 `audit/.archive/<timestamp>/`，并保留 hash、时间、执行命令、证据脱敏说明。
+- **严禁删除或归档 `audit/decompiled` 目录**：反编译输出目录是审计的源代码基础，不是中间文件。
+- 只有用户明确要求清理过程文件时，才可执行删除操作；删除前必须再次确认目标路径，不得使用模糊通配或扩大范围。

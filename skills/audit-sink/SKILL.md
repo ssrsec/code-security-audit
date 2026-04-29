@@ -29,7 +29,20 @@ description: 阶段 2 Sink-driven 审计。从危险 API、危险依赖和危险
 | SSRF | URL fetch、代理、webhook callback、图片/文档转换、HTTP client |
 | 文件 | 上传、下载、读取、写入、解压、路径拼接、对象存储 key |
 | 模板/表达式 | SSTI、SpEL、OGNL、Velocity、FreeMarker、Handlebars、公式注入 |
-| 加密/密钥 | 硬编码密钥、弱随机数、JWT 签名绕过、禁用证书校验 |
+| 加密/密钥/Secret | 硬编码账号密码、JWT secret、API key、云密钥、数据库连接串、弱随机数、JWT 签名绕过、禁用证书校验 |
+
+## 覆盖维度
+
+本轨道负责以下安全维度（参考 `shared/dimensions.md`）：
+
+| 维度 | 覆盖内容 |
+|------|----------|
+| D1 注入 | SQL 注入、命令注入、LDAP 注入、SSTI、SpEL、JNDI、模板注入 |
+| D4 反序列化 | Java/Python/PHP 不安全反序列化 |
+| D5 文件操作 | 上传/下载/路径遍历/任意读写 |
+| D6 SSRF | URL 注入、协议限制、内网探测 |
+| D7 加密与凭据 | 硬编码密钥/凭据、弱加密算法（仅可直接利用的） |
+| D10 供应链 | 依赖中已知高危 CVE |
 
 ## 审计步骤
 
@@ -57,6 +70,7 @@ description: 阶段 2 Sink-driven 审计。从危险 API、危险依赖和危险
 - 参数化查询、白名单、schema validation、路径规范化。
 - URL 协议/IP/重定向/DNS rebinding 防护。
 - 反序列化 safe mode、类型白名单、classpath gadget。
+- Secret 是否为示例值、是否被生产 profile 加载、是否可用于签名/登录/连接。
 - 模板 sandbox、表达式白名单。
 - 文件类型、MIME、扩展名、解压路径、对象存储 key 约束。
 

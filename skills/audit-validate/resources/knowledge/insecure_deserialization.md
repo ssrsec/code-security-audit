@@ -32,9 +32,9 @@
 ## 各生态参考文档
 
 - **Java**：fastjson_conditions.md、jndi_conditions.md；另有 Jackson、XStream、Hessian 等可仿照 Fastjson 写成立条件。
-- **Python**：pickle、yaml.unsafe_load 等；可新增 python_deserialization_conditions.md。
-- **PHP**：unserialize、__wakeup/__destruct 利用链；可新增 php_deserialization_conditions.md。
-- **.NET**：BinaryFormatter、ObjectStateFormatter 等；可新增 dotnet_deserialization_conditions.md。
+- **Python**：pickle、yaml.unsafe_load 等；见 python_pickle_conditions.md。
+- **PHP**：unserialize、__wakeup/__destruct 利用链；见 php_unserialize_conditions.md。
+- **.NET**：BinaryFormatter、ObjectStateFormatter、ViewState 等；见 dotnet_deserialization_conditions.md。
 
 ---
 

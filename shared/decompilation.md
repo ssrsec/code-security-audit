@@ -236,4 +236,4 @@ ASP.NET 部署中 DLL 通常集中在同一目录（`bin/` 或发布根目录）
 ## 6. 清理规则
 
 - `audit/decompiled` 目录是审计的源代码基础，**严禁在 阶段 6 清理时删除**
-- 阶段 6 必须保留 `audit/decompiled`、`audit/poc`、`audit/final` 和最终报告。只允许清理临时草稿、重复批次或失败转换文件，不得删除可复核证据。
+- 阶段 6 清理中间文件时严禁删除 `audit/decompiled`。最终交付报告必须是 `audit/security_audit_report.md`，并在报告正文内联关键证据。

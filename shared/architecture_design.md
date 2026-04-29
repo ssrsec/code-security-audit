@@ -26,12 +26,11 @@ flowchart TB
   P4 --> POC["audit/poc/<finding-id>/<br/>PoC、测试、清理步骤"]
   VAL --> P5["阶段 5<br/>组合漏洞与攻击链"]
   P5 --> CHAIN["composite_findings.md"]
-  CHAIN --> P6["阶段 6<br/>最终报告与证据包"]
+  CHAIN --> P6["阶段 6<br/>最终报告"]
   VAL --> P6
   COV --> P6
   ARCH --> P6
   P6 --> REPORT["security_audit_report.md"]
-  P6 --> FINAL["audit/final/<br/>画像/覆盖/验证/PoC索引/残余风险"]
 ```
 
 ## 2. Skill 模块架构
@@ -42,7 +41,7 @@ flowchart LR
   CTRL --> SINK["audit-sink<br/>source-to-sink"]
   CTRL --> CONTROL["audit-control<br/>auth/authz/业务控制"]
   CTRL --> VALIDATE["audit-validate<br/>验证与评分"]
-  CTRL --> REPORT["audit-report<br/>报告与证据包"]
+  CTRL --> REPORT["audit-report<br/>唯一交付报告"]
 
   RECON --> A1["入口、sink、依赖、鉴权模型"]
   SINK --> A2["注入、SSRF、反序列化、文件、模板、表达式"]
@@ -90,13 +89,8 @@ flowchart TB
   subgraph Phase5["audit/phase5"]
     COMBO["composite_findings.md"]
   end
-  subgraph Final["audit/final"]
+  subgraph Final["最终交付"]
     REPORT["security_audit_report.md"]
-    FINALINV["project_inventory.json"]
-    FINALCOV["owasp_coverage_matrix.md"]
-    FINALVAL["validation_results.json"]
-    POCIDX["poc_index.md"]
-    RR["residual_risk.md"]
   end
 
   Phase0 --> Phase1 --> Phase2 --> Phase3 --> Phase4 --> POC --> Phase5 --> Final
@@ -113,7 +107,7 @@ flowchart TB
 | 候选与漏洞分离 | 阶段 2 产出 candidate，阶段 4 验证后才可进入 final report |
 | 反向审查必须存在 | finding-skeptic 检查全局鉴权、框架默认保护、ORM 参数化、schema validation 和不可达代码 |
 | 测试环境优先 | 用户提供测试环境时做 V4；没有测试环境时用最小化单元/集成测试做 V2/V3 |
-| 保留最终证据包 | 合规报告需要可复核证据，不能只保留一份不可追踪的摘要 |
+| 唯一交付报告 | 最终报告必须内联关键证据、复现细节和修复建议，不能要求读者跳转中间文件理解漏洞 |
 
 ## 5. 与传统 SAST 的分工
 

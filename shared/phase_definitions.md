@@ -6,8 +6,9 @@
 
 - 用户给定路径时以用户路径为项目根；否则以当前工作区根路径为项目根。
 - 所有审计产出写入项目根下 `audit/`。
+- 长流程状态写入 `audit/state.json`，字段和恢复规则见 `shared/state_schema.md`。
 - 不得在执行中途随意切换到子模块目录。
-- `audit/final/` 是最终证据包，阶段 6 完成后必须保留。
+- 阶段 6 的唯一交付物是 `audit/security_audit_report.md`，最终报告必须内联关键结论、复现细节、前置条件、调用链和修复建议。
 
 ## 阶段 0：范围、度量与反编译预处理
 
@@ -35,21 +36,25 @@
 - 识别项目结构、开发语言、框架、中间件、构建系统、运行方式。
 - 枚举 HTTP/RPC/WebSocket/MQ/CLI/任务调度入口。
 - 分析认证逻辑、授权逻辑、租户隔离、资源归属校验、全局拦截链。
+- 按 `shared/framework_authz_checklist.md` 分析框架级鉴权/授权配置。
 - 识别依赖版本、供应链风险、已知高危组件、潜在 gadget 依赖。
+- 按 `shared/secret_detection.md` 识别硬编码账号、密码、密钥、Token、连接串、证书。
 - 识别数据库、缓存、文件系统、对象存储、第三方服务和信任边界。
 - 生成应审文件列表，作为覆盖率分母唯一来源。
-- 生成端点清单、sink 清单、Tier 分类和 OWASP/ASVS/WSTG/CWE 覆盖矩阵。
+- 生成端点清单、sink 清单、Tier 分类和 OWASP/ASVS/WSTG/CWE 覆盖矩阵；覆盖矩阵必须显式包含未授权/越权、敏感信息泄露、反序列化、注入、SSRF、文件、密钥与组合攻击链。
 
 **输出**：
 
 - `audit/phase1/project_inventory.json`
 - `audit/phase1/architecture_inventory.md`
 - `audit/phase1/auth_model.md`
+- `audit/phase1/framework_authz_map.md`
 - `audit/phase1/in_scope_files.txt`
 - `audit/phase1/tier_list.json`
 - `audit/phase1/endpoint_list.md`
 - `audit/phase1/sink_list.md`
 - `audit/phase1/dependency_list.json`
+- `audit/phase1/secret_inventory.md`
 - `audit/phase1/owasp_coverage_matrix.md`
 
 ## 阶段 2：全量审计（双轨）
@@ -60,8 +65,10 @@
 
 - **Sink-driven**：以 `sink_list.md`、依赖版本和危险配置为基准，从 sink 向上追踪外部输入，确认 source-to-sink 是否可达。
 - **Control-driven**：以 `endpoint_list.md` 和 `auth_model.md` 为输入，检查认证、授权、租户隔离、资源归属、业务状态机和敏感操作。
+- **Interface-driven**：对所有公开、白名单、低权限、导出、下载、调试、日志、配置、备份、管理接口进行未授权访问和敏感信息泄露专项检查。
 - 对 T1 文件完整分析；T2/T3 先筛后读，但命中入口、sink、调用链、权限链时必须完整分析。
 - 每个候选 finding 至少记录：入口、调用链、代码证据、防护点、疑似 CWE/OWASP 分类、验证等级 V0/V1、待验证条件。
+- 覆盖率口径必须诚实：按 `shared/coverage_policy.md` 分别记录文件枚举覆盖率、静态扫描覆盖率和高风险深读覆盖率；不得把扫描覆盖表述成逐行深读。
 - 大项目应分批执行，每批输出审阅清单和候选结果。
 
 **输出**：
@@ -77,8 +84,8 @@
 
 **动作**：
 
-- 精确计算覆盖率：已审文件数 / 应审文件数。禁止估算。
-- 覆盖率未达到 100% 时，继续补扫未审文件，不得进入阶段 4。
+- 精确计算三层覆盖率：文件枚举覆盖率、静态扫描覆盖率和高风险深读覆盖率。禁止估算。
+- 未达到 `shared/coverage_policy.md` 的阶段门时，继续补扫未审文件，不得进入相关 finding 的阶段 4。
 - 对每个候选 finding 执行反向审查：
   - 全局鉴权/网关是否已经保护入口。
   - 框架、ORM、模板引擎是否默认防护。
@@ -105,6 +112,8 @@
 - 对触发条件不成立的 finding 写入 rejected，不进入最终漏洞表。
 - 为可评分漏洞输出 CVSS 向量、CWE、OWASP Top 10、ASVS/WSTG 映射。
 - PoC 必须无害、可复现、包含清理步骤。
+- PoC 必须满足 `shared/verification_principles.md` 第三部分（漏洞类型级 Playbook）的证据要求：命令/代码执行提供无害命令输出，SQL 注入提供延时或只读数据证明，未授权/越权提供权限对照请求，敏感信息泄露提供泄露类型和可利用性，组合漏洞提供多步能力转移证据。
+- PoC 必须满足 `shared/poc_evidence_integrity.md` 的证据完整性要求，高危/严重漏洞必须有结果摘要或结构化证据。
 
 **输出**：
 
@@ -120,27 +129,22 @@
 **动作**：
 
 - 按 `shared/composite_vulnerability_analysis.md` 分析漏洞组合。
-- 重点识别 SSRF -> 内网服务、文件读 -> 密钥泄露、越权 -> 敏感数据、弱认证 -> 管理操作、依赖漏洞 -> 业务入口 等攻击链。
+- 重点识别 SSRF -> 内网服务、文件读 -> 密钥泄露、敏感信息泄露 -> IDOR/越权、弱认证 -> 管理操作、依赖漏洞 -> 业务入口、未授权导出 -> 批量数据访问 等攻击链。
 
 **输出**：
 
 - `audit/phase5/composite_findings.md`
 
-## 阶段 6：最终报告与证据包
+## 阶段 6：最终报告
 
 **输入**：项目画像、覆盖矩阵、验证结果、PoC、组合漏洞。
 
 **动作**：
 
 - 按 `shared/report_fields.md` 生成 `audit/security_audit_report.md`。
-- 复制或整理核心证据到 `audit/final/`，包括项目画像、覆盖矩阵、验证结果、PoC 索引和残余风险。
-- 只清理临时批次碎片，例如临时草稿和重复批次文件。不得删除 `audit/decompiled`、`audit/poc`、`audit/final` 或最终报告。
+- 严格使用 `skills/audit-report/resources/report_template.md` 的五章节结构：一、项目代码审计总结；二、漏洞汇总表；三、漏洞详情；四、组合漏洞摘要；五、总体安全建议。
+- 最终报告只输出一份，所有复现细节、前置条件、调用链、修复建议必须直接展现在报告中，不引用中间过程文件作为正文替代。
 
 **输出**：
 
 - `audit/security_audit_report.md`
-- `audit/final/project_inventory.json`
-- `audit/final/owasp_coverage_matrix.md`
-- `audit/final/validation_results.json`
-- `audit/final/poc_index.md`
-- `audit/final/residual_risk.md`
