@@ -50,8 +50,42 @@ DTO、Entity、VO、Model、常量、纯类型定义。
 
 `skipped-with-reason` 计入分母，但必须在限制说明中披露。
 
-## 4. 阶段门
+## 4. OWASP Top 10 适用域一致性检查
+
+文件覆盖率不是漏洞域覆盖率。阶段 3 计算覆盖率时，必须额外检查阶段 1/2 中是否出现 OWASP Top 10 适用域线索但最终没有对应候选 finding。
+
+最低检查域按 OWASP Top 10 2021 映射：
+
+- A01 Broken Access Control：未授权、越权、IDOR/BOLA、租户隔离、对象归属、批量操作、导出/下载/删除/配置接口。
+- A02 Cryptographic Failures：弱哈希、弱随机、敏感数据明文、密钥/Token/连接串泄露、TLS/证书校验问题。
+- A03 Injection：SQL/ORM/NoSQL/LDAP/XPath/命令/模板/表达式注入，动态代码执行，动态排序、筛选、批量 ID 和 raw query。
+- A04 Insecure Design：审批、支付、退款、库存、状态机、风控、限流、幂等、业务前置条件缺失。
+- A05 Security Misconfiguration：调试接口、错误回显、目录/静态资源暴露、默认配置、CSRF/CORS/Header 配置、危险数据库/中间件开关。
+- A06 Vulnerable and Outdated Components：依赖版本、反序列化 gadget、已知 CVE、组件安全配置。
+- A07 Identification and Authentication Failures：登录、找回密码、验证码、会话、SSO/OAuth/OIDC、JWT、API key、token 生命周期。
+- A08 Software and Data Integrity Failures：不安全反序列化、文件上传与解析链、模板/插件/脚本更新、CI/CD 或供应链完整性。
+- A09 Security Logging and Monitoring Failures：敏感操作审计缺失、认证失败/越权/管理操作无日志、日志中泄露敏感数据。
+- A10 SSRF：URL fetch、代理、webhook、回调、图片/文档转换、FTP/HTTP/SOAP/SSH 外联。
+
+如果某个适用域有线索但没有候选 finding，必须在既有的 `audit/phase3/false_positive_notes.md` 中增加该域的“未形成 finding 原因”，列出关键文件/入口、已观察防护点和排除证据。缺少这类说明时，不得把该域表述为已审无问题。
+
+### RCE / 反序列化显式门禁
+
+反序列化、动态代码执行、命令执行、模板/表达式执行不得被泛化为“已覆盖注入”后跳过。只要出现以下线索，必须逐项形成候选 finding、排除证据或阻塞项：
+
+- 反序列化：`BinaryFormatter`、`ObjectInputStream`、`pickle`、`yaml.load`、`unserialize`、Fastjson/Jackson/XStream 多态反序列化、ViewState/LosFormatter、消息队列或缓存对象反序列化。
+- 代码执行：`eval`、`exec`、动态编译、脚本引擎、反射调用、插件加载、动态 `Assembly.Load`、模板执行。
+- 命令执行：`Process.Start`、`Runtime.exec`、`ProcessBuilder`、`child_process`、`os.system`、`subprocess`、shell 拼接、压缩/转换/Office/图片处理外部命令。
+
+若未形成 finding，排除证据必须包含输入来源不可控性、允许列表/类型约束、危险 API 不可达性、sandbox/权限隔离或组件版本不受影响证明。
+
+### 禁止截断覆盖数据
+
+任何 OWASP Top 10 适用域线索不得只写前 N 条后继续推进。若线索数量大，必须沿用既有批次产物分批处理，并在 `audit/state.json` 或 `coverage_status.json` 记录总数、已处理数、未处理数。
+
+## 5. 阶段门
 
 - 阶段 4 前，文件枚举覆盖率和静态扫描覆盖率必须达到 100%。
 - 高风险深读覆盖率必须达到 100%，否则不得验证相关 finding。
+- 如果 `sink_list` 或 `endpoint_list` 中存在 OWASP Top 10 适用域线索，而最终候选没有对应漏洞，必须能在 `false_positive_notes.md` 或批次 findings 中复算排除原因。
 - 若平台或上下文限制导致不能继续，写入 `audit/state.json` 并提示用户继续，不得提前生成最终报告。

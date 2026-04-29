@@ -41,10 +41,13 @@ description: 面向有源码白盒场景的 LLM 代码安全审计总控协议�
 2. **证据优先**：文件路径、代码片段、调用链、配置、依赖版本必须来自实际读取或工具输出，不得编造。
 3. **状态持久化**：长流程审计必须维护 `audit/state.json`。阶段切换、批次完成、finding 合并、覆盖率变化和阻塞项都必须落盘。
 4. **覆盖率诚实**：覆盖率按 `shared/coverage_policy.md` 的三层指标记录。未完成文件枚举覆盖、静态扫描覆盖和高风险深读覆盖前，不得进入相关 finding 的阶段 4 验证。
-5. **验证分级**：候选漏洞必须按 V0-V4 标明验证等级。V0 不得写成已确认；V1 必须列明待验证条件；V2-V4 必须保留执行证据。
-6. **PoC 安全边界**：PoC 只用于授权环境验证，遵守 `shared/poc_safety_policy.md`。默认使用只读、无害、可清理、可回滚的最小复现证据。
-7. **报告格式严格约束**：最终报告必须严格按 `shared/report_fields.md` 和 `skills/audit-report/resources/report_template.md` 输出，报告有且仅有五个顶级章节（一～五），使用 `vul-001` 编号。
-8. **唯一交付报告**：阶段 6 的唯一交付物是 `audit/security_audit_report.md`。所有关键复现细节、前置条件、调用链、修复建议必须直接写入该报告，不得要求读者跳转中间文件。
+5. **OWASP Top 10 适用域一致性检查**：阶段 2/3 必须按 `shared/coverage_policy.md` 检查项目适用的 OWASP Top 10 域。存在域线索但无候选 finding 时，必须在既有批次或反向审查产物中写明排除证据。
+6. **禁止截断证据**：入口、sink、secret、权限、认证、注入、反序列化、代码执行、命令执行、文件、配置、依赖、业务状态等 Top 10 适用域线索数量过多时必须沿用批次机制处理，不得只写前 N 条后继续推进。存在未处理高风险线索时，不得宣称审计完成。
+7. **Top 10 漏报自检**：如果最终没有某个 OWASP Top 10 适用域 finding，但项目存在对应线索，必须能从阶段 2/3 产物中复算排除原因；否则退回阶段 2 补审。
+8. **验证分级**：候选漏洞必须按 V0-V4 标明验证等级。V0 不得写成已确认；V1 必须列明待验证条件；V2-V4 必须保留执行证据。
+9. **PoC 安全边界**：PoC 只用于授权环境验证，遵守 `shared/poc_safety_policy.md`。默认使用只读、无害、可清理、可回滚的最小复现证据。
+10. **报告格式严格约束**：最终报告必须严格按 `shared/report_fields.md` 和 `skills/audit-report/resources/report_template.md` 输出，报告有且仅有五个顶级章节（一～五），使用 `vul-001` 编号。
+11. **唯一交付报告**：阶段 6 的唯一交付物是 `audit/security_audit_report.md`。所有关键复现细节、前置条件、调用链、修复建议必须直接写入该报告，不得要求读者跳转中间文件。
 
 ### SHOULD：推荐策略
 
@@ -166,6 +169,11 @@ LLM 的上下文窗口有限，审计过程中必须做好上下文管理，避�
 | 把框架自动转义（如 Thymeleaf `th:text`、React JSX）误报为 XSS | 确认是否使用了 raw/unsafe 输出方式（如 `th:utext`、`dangerouslySetInnerHTML`） |
 | 把 `@RequestParam` 等注解参数未经 `@Valid` 校验就报注入 | 需追踪参数是否最终进入 raw 拼接 sink，Schema 校验缺失本身不是注入漏洞 |
 | 把开发环境配置（`application-dev.yml`）中的数据库密码当生产泄露 | 确认该 profile 是否被生产 `active profiles` 加载 |
+| 把“静态扫描覆盖 100%”当作“漏洞域审计完成” | 必须同时做 OWASP Top 10 适用域一致性检查，存在域线索时要有候选或排除证据 |
+| `sink_list` 命中上万条后只挑前几条写报告 | 必须分批处理全部 sink；不得截断后推进阶段 |
+| 最终报告没有某类 Top 10 漏洞就默认没有 | 必须查看该 Top 10 适用域的负证据；没有负证据就是漏审 |
+| 对 .NET 项目只搜 `SqlCommand`，漏掉 `QueryOptions.Where`、`FormatUtils.Format`、`FilterSql()` | 按框架特征补充 source-to-sink 追踪 |
+| 只按单一关键词审计某个 Top 10 域，漏掉框架别名、封装函数和二次利用链 | 按项目框架特征补充同义入口、封装 API、配置点和组合调用链 |
 
 ## 使用方式
 

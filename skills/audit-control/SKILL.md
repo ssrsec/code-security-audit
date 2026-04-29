@@ -30,6 +30,26 @@ description: 阶段 2 Control-driven 审计。从端点和业务能力检查认�
 | D8 配置 | Actuator/调试端点未授权、敏感信息泄露 |
 | D9 业务逻辑 | 竞态条件、Mass Assignment、越权操作 |
 
+## 硬门禁：OWASP Top 10 控制面不得漏审
+
+以下不是新增输出标准，而是阶段 2 的一致性约束：只要项目存在 OWASP Top 10 控制面线索，就必须形成候选 finding、批次排除证据或阻塞项。
+
+本轨道重点负责控制缺失相关域，并与 Sink-driven 轨道共同覆盖完整 Top 10：
+
+| OWASP Top 10 域 | Control-driven 必查线索 |
+|-----------------|--------------------------|
+| A01 Broken Access Control | 未授权、越权、IDOR/BOLA、对象归属、租户隔离、批量操作、导出/下载/删除/配置接口 |
+| A04 Insecure Design | 审批、支付、退款、库存、状态机、限流、幂等、业务前置条件缺失 |
+| A05 Security Misconfiguration | 白名单、匿名路由、调试端点、错误回显、CSRF/CORS/Header、默认账号或默认开关 |
+| A07 Identification and Authentication Failures | 登录、找回密码、验证码、会话、SSO/OAuth/OIDC、JWT、API key、Token 生命周期 |
+| A09 Security Logging and Monitoring Failures | 认证失败、越权尝试、管理操作、敏感导出/删除/配置变更无审计，或日志泄露敏感数据 |
+
+每个适用域必须有明确状态：
+
+- 控制缺失或可绕过：进入 `candidate_findings.json`。
+- 控制存在且有代码证据：在批次 findings 或阶段 3 反向审查中写明排除证据。
+- 缺少业务语义、账号权限或运行配置上下文：写入 `audit/state.json` 或 `coverage_status.json` 的阻塞项，不得宣称该 Top 10 域完成。
+
 ## 审计步骤
 
 ### 1. 端点分级
@@ -103,6 +123,17 @@ description: 阶段 2 Control-driven 审计。从端点和业务能力检查认�
 - 阶段 4 需要验证的账号、业务数据或环境条件。
 - 若是未授权/越权/泄露类 finding，必须记录对照请求设计：无认证/低权限请求、合法高权限请求、预期安全行为、实际突破点。
 
+### 6.1 Top 10 适用域负证据要求
+
+即使没有发现漏洞，也必须为存在明确线索的 OWASP Top 10 控制面适用域留下可复算的排除证据。优先写入当前批次的 `findings_batch{N}.md`；阶段 3 汇总到 `false_positive_notes.md`。
+
+排除证据必须包含：
+
+- 审计对象总数、已处理数、未处理数。
+- 每个入口/业务能力/配置点的文件:行号、期望控制、实际控制、防护点、结论。
+- 对被排除项的代码证据，例如全局鉴权链、角色/权限表、资源归属查询、租户过滤、状态机校验、OAuth/OIDC 校验、审计日志写入点。
+- 若任何项未处理，必须记录阻塞项，并阻止阶段 4。
+
 ## 防误报检查
 
 不得把以下内容直接作为漏洞：
@@ -120,6 +151,15 @@ description: 阶段 2 Control-driven 审计。从端点和业务能力检查认�
 - Sink-driven 证明危险数据流。
 - Control-driven 证明控制缺失。
 - 同一漏洞可能同时需要两条证据链，例如未授权文件下载既要证明入口无鉴权，也要证明文件路径或对象 ID 可控。
+
+## 进度要求
+
+每批审计后：
+
+- 追加已审路径到 `audit/phase2/reviewed_paths_batch{N}.txt`。
+- 更新候选 findings。
+- 汇报精确覆盖：`已审 X / 应审 Y = Z%`。
+- 若 OWASP Top 10 控制面适用域线索存在，按域汇报 `processed/total/pending`；pending 大于 0 时不得进入阶段 4。
 
 ## 输出
 
