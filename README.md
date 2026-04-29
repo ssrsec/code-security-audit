@@ -23,8 +23,9 @@ audit-orchestrator（总编排控制器）
     ├── audit-recon-agent      ← Phase 1 侦察
     ├── audit-sink-agent       ← Phase 2 Sink-driven（与 control 并行）
     ├── audit-control-agent    ← Phase 2 Control-driven（与 sink 并行）
-    ├── audit-validate-agent   ← Phase 4 验证 + Phase 5 组合分析
-    └── audit-report-agent     ← Phase 6 报告生成 + 清理
+    ├── audit-validate-agent   ← Phase 4 验证 + Phase 5 漏洞组合分析
+    ├── audit-composer-agent   ← Phase 5 原语汇聚 + 组合链推导（与 validate 并行）
+    └── audit-report-agent     ← Phase 6 报告生成
 ```
 
 ## 使用方式
@@ -62,6 +63,7 @@ code-security-audit/
 │   ├── audit-recon/                  # Phase 1 详细规则
 │   ├── audit-sink/                   # Phase 2 Sink-driven 详细规则
 │   ├── audit-control/                # Phase 2 Control-driven 详细规则
+│   ├── audit-primitives/             # Phase 2 原语识别标准与发射格式
 │   ├── audit-validate/               # Phase 4 验证规则（含知识库）
 │   └── audit-report/                 # Phase 6 报告规则（含模板）
 ├── shared/                           # 共享协议与配置
@@ -76,7 +78,6 @@ code-security-audit/
 │   ├── large_project_audit.md        # 大项目审计约定
 │   ├── audit_output_layout.md        # 产出目录约定
 │   ├── coverage_matrix_template.md   # 覆盖矩阵模板
-│   ├── phase_definitions.md          # 阶段定义
 │   ├── primitive_chain_catalog.md    # 原语链目录
 │   ├── config/                       # Tier 规则、文件范围、优先级关键词
 │   └── tools/                        # 批次规划脚本

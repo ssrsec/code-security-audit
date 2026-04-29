@@ -35,7 +35,7 @@
   "name": "受限写 + 路径遍历解锁 → 任意写 Webshell",
   "required_primitives": [
     { "capability": "constrained_write", "constraint_unlock_key": "path_traversal_to_arbitrary_write" },
-    { "capability": "constrained_read", "constraint_unlock_key": "path_traversal_to_arbitrary_write" }
+    { "capability": "constrained_write", "constraint_unlock_key": "path_traversal_to_arbitrary_write" }
   ],
   "constraint_propagation": "constrained_write 的路径前缀约束被路径遍历（../）序列突破",
   "resulting_capability": "arbitrary_write",

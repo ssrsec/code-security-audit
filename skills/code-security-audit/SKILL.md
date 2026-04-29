@@ -7,7 +7,7 @@ description: 代码安全审计总控协议。AI 作为审计大脑，按阶段 
 
 ## 角色
 
-你是代码安全审计的**大脑与总指挥**。用户请求审计时，按 **阶段 0 → 1 → 2 → 3 → 4 → 6** 严格执行。所有产出写入项目根目录下的 `audit/`（用户给了路径则以用户路径为准）。**所有输出必须使用简体中文。**
+你是代码安全审计的**大脑与总指挥**。用户请求审计时，按 **阶段 0 → 1 → 2 → 3 → 4 → 5 → 6** 严格执行。所有产出写入项目根目录下的 `audit/`（用户给了路径则以用户路径为准）。**所有输出必须使用简体中文。**
 
 ## 核心原则
 
@@ -100,10 +100,12 @@ description: 代码安全审计总控协议。AI 作为审计大脑，按阶段 
 - 严格按插件内 `shared/report_fields.md` 和报告模板输出。
 
 
-### 9. 强制清理与静默结束（阶段 6 纪律）
-- **必须强制删除中间文件**：在 `阶段 6` 的最终交付报告 `audit/security_audit_report.md` 完全生成并确认无误后，**必须自动且强制性地删除所有过程文件**（`audit/phase0`、`audit/phase1`、`audit/phase2`、`audit/phase3`、`audit/phase5` 下的各种 `txt`、`json`、`md` 废料），只保留最终的报告文件。**不允许以"便于追溯"等任何理由擅自保留！**
-- **⚠️ 严禁删除 `audit/decompiled` 目录**：反编译输出目录是审计的"源代码基础"，不是中间过程文件，**绝对不能删除**。清理命令只能是 `rm -rf audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5`，不得包含 `audit/decompiled`。
-- **禁止废话与诱导**：在完成所有的审计流程及清理工作后，AI 的最后一句回答**有且仅有一句固定的话**："代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，所有中间过程文件已自动清理。"
+### 9. 过程文件保留与结束纪律（阶段 6 纪律）
+- **过程文件默认保留**：最终报告 `audit/security_audit_report.md` 完全生成并确认无误后，**过程文件默认保留**，供证据追溯和复核。
+- **⚠️ 严禁删除 `audit/decompiled` 目录**：反编译输出目录是审计的"源代码基础"，不是中间过程文件，**绝对不能删除**。
+- **⚠️ 严禁删除 `audit/phase4` 目录**：已验证漏洞证据及 PoC 包，不得清理。
+- **仅当用户明确要求精简交付包时**，将 phase0/phase1/phase2/phase3/phase5 归档到 `audit/.archive/<timestamp>/`，不得执行 `rm -rf`。
+- **禁止废话与诱导**：在完成所有的审计流程后，AI 的最后一句回答**有且仅有一句固定的话**：「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，中间过程文件已保留（如需精简交付包，请告知）。」
 - **绝对禁止提出流程外的选择**：不论是"是否要靶机测试"、"是否要把报告改成英文"还是"是否要复查XXX"，通通禁止！做完就闭嘴。
 
 ## 子 Skill 分工
@@ -130,7 +132,7 @@ audit-orchestrator（总编排）
     │    └── primitives_batch  ← 同时输出原语
     ├── audit-validate-agent   ← Phase 4+5 漏洞验证 + 漏洞组合分析
     ├── audit-composer-agent   ← Phase 5 原语汇聚 + 组合链推导（与 validate 并行）
-    └── audit-report-agent     ← Phase 6 报告生成（含原语链章节）+ 清理
+    └── audit-report-agent     ← Phase 6 报告生成（含原语链章节）
 ```
 
 当用户说「开始审计」时，触发本 skill，由 `audit-orchestrator` Agent 接管全程自动编排。

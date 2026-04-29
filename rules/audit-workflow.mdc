@@ -55,7 +55,9 @@ globs:
 
 ## Phase 6 纪律
 
-- 报告生成并确认无误后，必须执行 `rm -rf audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5`
+- 报告生成并确认无误后，**过程文件默认保留**（用于证据追溯）
 - **严禁删除** `audit/decompiled`（反编译输出是审计源代码基础）
-- 最后一句话有且仅有：「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，所有中间过程文件已自动清理。」
+- **严禁删除** `audit/phase4`（已验证漏洞证据，法律/合规追溯基础）
+- **仅当用户明确要求精简交付包时**，将 phase0/phase1/phase2/phase3/phase5 归档到 `audit/.archive/<timestamp>/`
+- 最后一句话有且仅有：「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，中间过程文件已保留（如需精简交付包，请告知）。」
 - 之后**禁止**提出任何流程外选项

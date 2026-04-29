@@ -15,9 +15,9 @@ tools: ["Read", "Write", "Glob", "Bash"]
 
 ## 完成度校验（生成报告前必须确认）
 
-1. 覆盖率已达 100%（读取 `audit/phase2/progress.md` 确认）。
-2. `audit/phase3/findings_verified.md` 存在且非空。
-3. `audit/phase3/composite_findings.md` 存在（可为空/无组合漏洞说明）。
+1. 覆盖率已达 100%（读取 `audit/phase2/coverage_status.json` 确认；兼容旧路径 `audit/phase2/progress.md`）。
+2. `audit/phase4/validated_findings.md` 存在且非空（主路径）；或兼容别名 `audit/phase3/findings_verified.md`。
+3. `audit/phase5/composite_findings.md` 存在（主路径）；兼容别名 `audit/phase3/composite_findings.md`（可为空/无组合漏洞说明）。
 4. `audit/phase5/primitive_chains.md` 存在（可为"未发现"内容）。
 5. **以上任一不满足，拒绝生成报告，告知 orchestrator 需先完成对应阶段。**
 
@@ -92,28 +92,34 @@ tools: ["Read", "Write", "Glob", "Bash"]
 
 ## 报告生成步骤
 
-1. 读取 `audit/phase3/findings_verified.md` 所有漏洞。
-2. 读取 `audit/phase3/composite_findings.md` 组合漏洞。
+1. 读取 `audit/phase4/validated_findings.md`（主路径）或兼容别名 `audit/phase3/findings_verified.md` 所有漏洞。
+2. 读取 `audit/phase5/composite_findings.md`（主路径）或兼容别名 `audit/phase3/composite_findings.md` 组合漏洞。
 3. 读取 `audit/phase5/primitive_chains.md` 原语组合攻击链。
 4. 读取 `audit/phase0/metrics.md` 获取开始时间和技术栈。
 5. 执行 `date "+%Y.%m.%d %H:%M:%S"` 获取真实结束时间。
 6. 按 5 章节结构写入 `audit/security_audit_report.md`。
 7. 确认报告文件写入完整且无误。
 
-## 强制清理纪律
+## 过程文件保留策略
 
-报告确认无误后，**立即执行**：
+报告确认无误后，**默认保留所有过程文件**（用于证据追溯和复核）。
+
+**严禁删除的目录（任何情况下）**：
+- `audit/decompiled`（反编译输出是审计源代码基础）
+- `audit/phase4`（已验证漏洞证据，法律/合规追溯基础）
+- `audit/poc`（PoC 证据包）
+
+**仅当用户明确要求精简交付包时**，将过程文件归档：
 ```bash
-rm -rf audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5
+mkdir -p audit/.archive/$(date +%Y%m%d_%H%M%S)
+mv audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5 audit/.archive/$(date +%Y%m%d_%H%M%S)/
 ```
 
-**严禁删除 `audit/decompiled` 目录**（若存在），该目录是审计源代码基础。
-
-**严禁以"便于追溯"为由保留中间文件。**
+**绝对禁止**在未经用户明确指令时执行 `rm -rf` 删除任何审计目录。
 
 ## 静默结束
 
 清理完成后，**有且仅有一句固定结束语**：
-「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，所有中间过程文件已自动清理。」
+「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，中间过程文件已保留（如需精简交付包，请告知）。」
 
 **之后绝对禁止**提出任何附加选项（如"是否需要更改排版"、"是否要继续深入"、"是否靶机测试"等）。做完就闭嘴。

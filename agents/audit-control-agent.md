@@ -87,7 +87,7 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "LSP"]
 
 ### 7. 进度追踪
 
-将本批已审端点追加到 `audit/phase2/reviewed_paths_batch{N}.txt`，更新 `audit/phase2/progress.md`。
+将本批已审端点追加到 `audit/phase2/reviewed_paths_batch{N}.txt`，更新 `audit/phase2/coverage_status.json`（覆盖率状态）。
 
 ## 与 audit-sink-agent 的关系
 

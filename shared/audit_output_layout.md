@@ -32,14 +32,15 @@ audit/
 │   └── callchain_tracker.md          # 调用链追踪
 ├── phase3/
 │   ├── false_positive_notes.md       # 反向审查与误报说明
-│   ├── findings_verified.md          # 已验证漏洞（含「已确认」和「待验证」）
-│   └── composite_findings.md         # 漏洞组合分析
+│   ├── findings_verified.md          # 已验证漏洞（别名，内容与 phase4/validated_findings.md 对齐）
+│   └── composite_findings.md         # 漏洞组合分析（别名，内容与 phase5/composite_findings.md 对齐）
 ├── phase4/
-│   ├── validated_findings.md         # 已验证漏洞（与 phase3 结构对齐，别名）
+│   ├── validated_findings.md         # 已验证漏洞（**主路径，权威**，含「已确认」和「待验证」）
 │   ├── validation_results.json       # 验证结果（结构化）
 │   └── rejected_findings.md          # 不成立候选
 ├── phase5/
-│   ├── composite_findings.md         # 组合漏洞分析
+│   ├── composite_findings.md         # 组合漏洞分析（**主路径**，权威）
+│   ├── primitive_registry.md         # 所有原语汇总注册表（audit-composer-agent 产出）
 │   └── primitive_chains.md           # 原语组合攻击链（audit-composer-agent 产出）
 ├── poc/
 │   └── <finding-id>/                 # PoC 和验证证据

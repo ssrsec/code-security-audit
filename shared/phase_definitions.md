@@ -156,18 +156,26 @@
 
 ## 阶段 5：组合漏洞分析（必须执行）
 
-**输入**：阶段 4 已确认和待验证漏洞。
+**输入**：阶段 4 已确认和待验证漏洞；阶段 2 各批次原语 `primitives_batch{N}.md`。
 
 **动作**：
 
+**轨道 A（漏洞组合，audit-validate-agent 继续执行）：**
 - 按 `shared/composite_vulnerability_analysis.md` 分析漏洞组合；**必须基于本次审计已发现的至少 2 个漏洞进行组合**，不得用单个漏洞加前置条件充数。
 - 重点识别攻击链：SSRF → 内网服务、文件读 → 密钥泄露、敏感信息泄露 → IDOR/越权、弱认证 → 管理操作、未授权导出 → 批量数据访问等。
-- 利用 `audit/phase2/primitives_batch{N}.md` 中记录的原语能力辅助链路拼接分析。
+
+**轨道 B（原语组合，audit-composer-agent 并行执行）：**
+- 汇聚 `audit/phase2/primitives_batch{N}.md` 中所有原语，构建原语注册表。
+- 按 `shared/primitive_chain_catalog.md` 规则表执行快速命中（CHAIN-RULE-NNN 匹配）。
+- 未被规则命中的原语集，由 LLM 推理发现隐式组合链。
+- 输出原语注册表和组合攻击链。
 
 **输出**：
 
-- `audit/phase5/composite_findings.md`
+- `audit/phase5/composite_findings.md`（漏洞组合分析，**主路径**）
 - `audit/phase3/composite_findings.md`（同步别名）
+- `audit/phase5/primitive_registry.md`（所有原语汇总注册表）
+- `audit/phase5/primitive_chains.md`（原语组合攻击链，无命中时写"未发现"）
 
 ---
 

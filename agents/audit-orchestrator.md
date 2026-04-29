@@ -11,7 +11,7 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
 ## When to invoke
 
 - **用户开启新审计。** 用户说「开始审计」「对 [项目路径] 做安全审计」「扫描 [目录]」，从 Phase 0 启动全流程。
-- **用户恢复中断审计。** 用户说「继续审计」，读取 `audit/phase2/progress.md` 中的断点，从上次覆盖率位置继续分批审计。
+- **用户恢复中断审计。** 用户说「继续审计」，读取 `audit/phase2/coverage_status.json` 中的断点（或 `audit/state.json`），从上次覆盖率位置继续分批审计。
 - **用户从指定阶段恢复。** 用户说「从阶段 X 继续」，读取对应阶段输出，跳转到该阶段继续执行。
 - **自动分批循环。** Phase 3 发现覆盖率 < 100% 时，自动重新调度 audit-sink/control 继续下一批，直到 100%。
 
@@ -62,15 +62,19 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
 
 **任务 A（不变）：audit-validate-agent**
 - 传入：所有 `audit/phase2/findings_batch*.md` 合并路径
-- 产出：`audit/phase3/findings_verified.md` + `audit/phase3/composite_findings.md`
+- 主产出：`audit/phase4/validated_findings.md`（权威路径）
+- 别名同步：`audit/phase3/findings_verified.md`（内容相同，供向下兼容引用）
+- 组合分析：`audit/phase5/composite_findings.md`（主）+ `audit/phase3/composite_findings.md`（别名）
 
 **任务 B（新增）：audit-composer-agent**
 - 传入：所有 `audit/phase2/primitives_batch*.md` 合并路径
 - 产出：`audit/phase5/primitive_registry.md` + `audit/phase5/primitive_chains.md`
 
-两者完成后，验证以下四个文件均存在：
-- `audit/phase3/findings_verified.md`      ✓ 必须存在
-- `audit/phase3/composite_findings.md`     ✓ 必须存在
+两者完成后，验证以下文件均存在：
+- `audit/phase4/validated_findings.md`     ✓ 必须存在（主路径）
+- `audit/phase3/findings_verified.md`      ✓ 必须存在（别名）
+- `audit/phase5/composite_findings.md`     ✓ 必须存在（主路径）
+- `audit/phase3/composite_findings.md`     ✓ 必须存在（别名）
 - `audit/phase5/primitive_registry.md`     ✓ 必须存在
 - `audit/phase5/primitive_chains.md`       ✓ 必须存在（无命中时文件存在，内容为"未发现"）
 
@@ -78,12 +82,12 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
 
 ### Phase 6：最终报告
 
-调度 **audit-report-agent**，传入 phase3 产出路径。等待其完成，确认报告已写入 `audit/security_audit_report.md`。
+调度 **audit-report-agent**，传入 `audit/phase4/validated_findings.md`（主路径）及 phase5 产出路径。等待其完成，确认报告已写入 `audit/security_audit_report.md`。
 
 ### 收尾纪律
 
 报告确认无误后，**有且仅有一句固定结束语**：
-「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，所有中间过程文件已自动清理。」
+「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，中间过程文件已保留（如需精简交付包，请告知）。」
 
 之后**禁止**提出任何流程外选项。
 

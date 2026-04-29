@@ -67,11 +67,26 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash"]
 
 未匹配的保守归为 T2。输出到 `audit/phase1/tier_list.json`。
 
-### 6. 审计形态判定
+### 6. 认证与授权模型分析
+
+分析认证逻辑（Session、JWT、OAuth、SSO）、授权逻辑（RBAC、ABAC、权限表）、租户隔离策略和资源归属校验，建立认证授权模型。参考 `shared/framework_authz_checklist.md`（Glob 搜索 `**/shared/framework_authz_checklist.md` 定位）分析框架级鉴权配置。
+
+输出到：
+- `audit/phase1/auth_model.md`（认证、授权、租户隔离模型）
+- `audit/phase1/framework_authz_map.md`（框架级鉴权配置详细）
+
+### 7. 硬编码密钥识别
+
+按 `shared/secret_detection.md`（Glob 搜索 `**/shared/secret_detection.md` 定位）识别：
+- 硬编码账号/密码/API Key/JWT Secret/数据库连接串/云凭证/证书私钥
+
+输出到 `audit/phase1/secret_inventory.md`，不做漏洞判断，仅记录线索供 Phase 4 验证。
+
+### 8. 审计形态判定
 
 若同时存在源码与编译产物，确认审计形态（`source_only` / `compiled_only` / `both`）。无法判断时**必须询问用户**，不得猜测。
 
-### 7. 初始化覆盖矩阵
+### 9. 初始化覆盖矩阵
 
 读取 `shared/coverage_matrix_template.md`（位于插件根目录的 shared/ 目录），为本次审计初始化 `audit/phase1/coverage_matrix.md`，所有文件标记为"待审"。
 
@@ -79,13 +94,18 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash"]
 
 | 文件 | 说明 |
 |------|------|
-| `audit/phase1/phase1_recon.md` | 技术栈、框架、审计形态 |
-| `audit/phase1/in_scope_files.txt` | 应审文件列表（每行一个路径） |
+| `audit/phase1/phase1_recon.md` | 技术栈、框架、审计形态（简报） |
+| `audit/phase1/project_inventory.json` | 项目语言、框架、依赖、入口（结构化） |
+| `audit/phase1/architecture_inventory.md` | 模块结构、数据流、信任边界 |
+| `audit/phase1/auth_model.md` | 认证、授权、租户隔离模型 |
+| `audit/phase1/framework_authz_map.md` | 框架级鉴权配置 |
+| `audit/phase1/in_scope_files.txt` | 应审文件列表（每行一个路径，覆盖率分母唯一来源） |
 | `audit/phase1/tier_list.json` | Tier 分类结果 |
-| `audit/phase1/coverage_matrix.md` | 覆盖矩阵（初始化） |
+| `audit/phase1/coverage_matrix.md` | 覆盖矩阵（初始化，含 OWASP/ASVS/WSTG/CWE 域） |
 | `audit/phase1/endpoint_list.md` | 端点清单 |
 | `audit/phase1/sink_list.md` | 危险 API 清单 |
 | `audit/phase1/dependency_list.json` | 依赖和版本清单 |
+| `audit/phase1/secret_inventory.md` | Secret 线索（硬编码账号、密码、密钥等） |
 
 ## 严格纪律
 

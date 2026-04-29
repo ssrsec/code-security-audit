@@ -31,7 +31,7 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "LSP"]
 1. **精准读取**：超过 500 行的文件不要整文件 Read。先用 Grep 定位 Sink，再用 offset/limit 只读前后 50-100 行。
 2. **调用链追踪器**：跨 2 个以上文件的数据流追踪，必须将每一跳写入 `audit/phase2/callchain_tracker.md` 再继续。格式：
 ```
-## com-001: [Sink 类型]
+## cc-001: [Sink 类型]
 1. 入口: UserController.java:45 — 参数 userId 来自 @RequestParam
 2. 中转: UserService.java:102 — 传入 findUser()
 3. Sink: UserDao.java:33 — 拼接进 SQL 字符串
@@ -74,7 +74,7 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "LSP"]
 ### 6. 进度追踪（每批必须）
 
 1. 将本批已审路径追加到 `audit/phase2/reviewed_paths_batch{N}.txt`。
-2. 更新 `audit/phase2/progress.md`：已审 X / 总计 Y 文件 = Z% 覆盖率。
+2. 更新 `audit/phase2/coverage_status.json`：已审 X / 总计 Y 文件 = Z% 覆盖率。
 3. 更新 `audit/phase1/coverage_matrix.md` 中各文件状态。
 
 ## 调用链记录约定

@@ -110,9 +110,11 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "LSP"]
 1. 检查是否存在漏洞 A 的输出可作为漏洞 B 的输入
 2. 检查是否存在"突破隔离"的组合（如 SSRF → 内网反序列化 = RCE）
 3. 组合漏洞编号格式：`com-001`、`com-002`（必须由 ≥2 个已知单漏洞组合而成）
-4. 输出到 `audit/phase3/composite_findings.md`
+4. 主产出写入 `audit/phase5/composite_findings.md`，同时同步别名 `audit/phase3/composite_findings.md`（两者内容相同）
 
 ## 输出文件
 
-- `audit/phase3/findings_verified.md`：已验证漏洞（仅已确认和待验证）
-- `audit/phase3/composite_findings.md`：组合漏洞分析结果
+- `audit/phase4/validated_findings.md`：已验证漏洞（仅已确认和待验证）**【主路径，权威】**
+- `audit/phase3/findings_verified.md`：同上，别名，内容与 phase4 对齐
+- `audit/phase5/composite_findings.md`：组合漏洞分析结果 **【主路径，权威】**
+- `audit/phase3/composite_findings.md`：同上，别名
