@@ -1,0 +1,110 @@
+# =========================
+# macOS & 操作系统相关
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+**/.Trash
+**/.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# =========================
+# Python 相关
+# =========================
+# 字节码和缓存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境
+.env
+.venv
+env/
+venv/
+ENV/
+
+# 打包和分发
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 测试和覆盖率
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# =========================
+# Golang 相关
+# =========================
+# 编译后的二进制文件
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试生成的二进制文件
+*.test
+
+# Go 覆盖率工具输出
+*.out
+
+# Go 工作区文件
+go.work
+go.work.sum
+
+# =========================
+# IDE & 编辑器相关
+# =========================
+# JetBrains (PyCharm, GoLand等)
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+
+# =========================
+# 日志与敏感信息 (重要)
+# =========================
+# 日志文件
+*.log
+
+# 环境变量与密钥 (绝不能上传)
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.crt
+id_rsa
+id_ed25519

@@ -1,0 +1,132 @@
+{
+  "$schema": "model_routing",
+  "description": "模型路由配置。定义每个 model_tier 到具体模型的映射关系，支持按平台和成本策略切换。",
+  "version": "1.0",
+
+  "profiles": {
+    "default": {
+      "description": "默认路由：平衡性能与成本",
+      "tier_map": {
+        "fast": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "侦察/报告等结构化任务，快速模型足够"
+        },
+        "balanced": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "编排/监督等中等推理任务"
+        },
+        "high": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "数据流追踪/原语组合等深度推理任务"
+        },
+        "max": {
+          "cc_model": "opus",
+          "cursor_model": "inherit",
+          "rationale": "漏洞验证/CVSS评分等最高精度任务"
+        }
+      }
+    },
+
+    "high_accuracy": {
+      "description": "高精度路由：优先准确率，适用于关键项目审计",
+      "tier_map": {
+        "fast": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "侦察仍用快速模型"
+        },
+        "balanced": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "编排升级到 sonnet"
+        },
+        "high": {
+          "cc_model": "opus",
+          "cursor_model": "inherit",
+          "rationale": "数据流追踪使用最高精度"
+        },
+        "max": {
+          "cc_model": "opus",
+          "cursor_model": "inherit",
+          "rationale": "验证使用最高精度 + extended thinking"
+        }
+      }
+    },
+
+    "cost_optimized": {
+      "description": "成本优化路由：大项目审计时控制成本",
+      "tier_map": {
+        "fast": {
+          "cc_model": "haiku",
+          "cursor_model": "inherit",
+          "rationale": "侦察/报告用最低成本模型"
+        },
+        "balanced": {
+          "cc_model": "haiku",
+          "cursor_model": "inherit",
+          "rationale": "编排用低成本模型"
+        },
+        "high": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "审计用中等模型"
+        },
+        "max": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "验证仍用较高精度"
+        }
+      }
+    },
+
+    "multi_vendor": {
+      "description": "多供应商路由：利用不同模型的互补优势（借鉴 TCH ChainReactors 设计）",
+      "tier_map": {
+        "fast": {
+          "cc_model": "haiku",
+          "cursor_model": "inherit",
+          "rationale": "侦察用快速模型"
+        },
+        "balanced": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "编排用 Claude"
+        },
+        "high": {
+          "cc_model": "sonnet",
+          "cursor_model": "inherit",
+          "rationale": "代码追踪用 Claude"
+        },
+        "max": {
+          "cc_model": "opus",
+          "cursor_model": "inherit",
+          "rationale": "验证用最高精度模型"
+        }
+      },
+      "notes": "Cursor 环境下暂不支持多供应商，所有层级使用 inherit。CC 环境下可通过 model 参数指定。"
+    }
+  },
+
+  "agent_assignments": {
+    "audit-orchestrator": { "tier": "balanced", "phase": "全程" },
+    "audit-recon-agent": { "tier": "fast", "phase": "Phase 1" },
+    "audit-sink-agent": { "tier": "high", "phase": "Phase 2" },
+    "audit-control-agent": { "tier": "high", "phase": "Phase 2" },
+    "audit-advisor-agent": { "tier": "balanced", "phase": "Phase 2.5" },
+    "audit-validate-agent": { "tier": "max", "phase": "Phase 4+5" },
+    "audit-composer-agent": { "tier": "high", "phase": "Phase 5" },
+    "audit-report-agent": { "tier": "fast", "phase": "Phase 6" }
+  },
+
+  "runtime_overrides": {
+    "description": "运行时可通过 state.json 中的 model_profile 字段覆盖默认路由",
+    "example": {
+      "state.json": {
+        "model_profile": "high_accuracy"
+      }
+    }
+  }
+}
