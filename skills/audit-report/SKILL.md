@@ -7,7 +7,7 @@ description: 阶段 6 最终报告生成。由 audit-orchestrator 在 Phase 4+5 
 
 ## 角色
 
-负责阶段 6：将 `audit/phase4/validated_findings.md`（别名 `audit/phase3/findings_verified.md`）和 `audit/phase5/composite_findings.md`（别名 `audit/phase3/composite_findings.md`）及 `audit/phase5/primitive_chains.md` 合并为**唯一交付报告** `audit/security_audit_report.md`。报告全文使用简体中文。
+负责阶段 6：将 `audit/phase4/validated_findings.md` 和 `audit/phase5/composite_findings.md` 及 `audit/phase5/primitive_chains.md` 合并为**唯一交付报告** `audit/security_audit_report.md`。报告全文使用简体中文。
 
 ## 报告结构
 
@@ -57,7 +57,7 @@ description: 阶段 6 最终报告生成。由 audit-orchestrator 在 Phase 4+5 
 
 #### 4.1 漏洞组合攻击链（基于已确认漏洞）
 
-来源：`audit/phase5/composite_findings.md`（别名 `audit/phase3/composite_findings.md`）
+来源：`audit/phase5/composite_findings.md`
 
 ##### 【组合漏洞汇总表】
 

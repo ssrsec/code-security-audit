@@ -22,8 +22,7 @@ description: 阶段 4 漏洞验证与评分技能，同时承担漏洞级别的�
 - `shared/verification_principles.md`
 - `shared/secret_detection.md`
 - `shared/framework_authz_checklist.md`
-- `shared/poc_safety_policy.md`
-- `shared/poc_evidence_integrity.md`
+- `shared/poc_policy.md`
 
 ## 极致降噪与验证纪律（严禁漏报）
 
@@ -127,7 +126,7 @@ description: 阶段 4 漏洞验证与评分技能，同时承担漏洞级别的�
 
 ### 6. PoC/测试生成
 
-执行 PoC 前必须读取 `shared/verification_principles.md`（第二、三部分）、`shared/poc_safety_policy.md` 和 `shared/poc_evidence_integrity.md`，按漏洞类型满足最低验证证据并保存证据包。
+执行 PoC 前必须读取 `shared/verification_principles.md`（第二、三部分）和 `shared/poc_policy.md`，按漏洞类型满足最低验证证据并保存证据包。
 
 优先级：
 1. 用户提供测试环境：执行 V4 端到端验证。
@@ -150,7 +149,7 @@ PoC 要求：
 - `REPLACE_XXX`、`REPLACE_WITH_VALID_XXX`、`YOUR_HOST` 等任何要求读者自行替换的标记
 - `<!-- 此处替换为... -->`、`<root/>` 等用注释或空标签伪装的占位
 - `此处从略`、`从略`、`细节略`、`不再展开`、`需按目标...编写` 等推迟编写话术
-- **一旦发现以上任何形式，该漏洞条目必须退回重写，不得进入 findings_verified.md**
+- **一旦发现以上任何形式，该漏洞条目必须退回重写，不得进入 validated_findings.md**
 
 **正确做法**：
 - Host 从项目配置读取，格式 `127.0.0.1:端口`
@@ -180,7 +179,7 @@ PoC 要求：
 
 ### 8. 结论写入
 
-- 已确认：写入 `audit/phase4/validated_findings.md`（别名 `audit/phase3/findings_verified.md`），验证状态 `已确认`。
+- 已确认：写入 `audit/phase4/validated_findings.md`，验证状态 `已确认`。
 - 待验证：写入同一文件，验证状态 `待验证`，必须列出待验证内容和限制。
 - 不成立：写入 `audit/phase4/rejected_findings.md`，说明排除证据，不进入最终漏洞表。
 
@@ -252,12 +251,12 @@ PoC 要求：
 全部单漏洞验证完成后，按 `shared/composite_vulnerability_analysis.md` 执行漏洞组合分析：
 - 检查是否存在漏洞 A 的输出可作为漏洞 B 的输入
 - 检查是否存在"突破隔离"的组合（如 SSRF → 内网反序列化）
-- 输出到 `audit/phase5/composite_findings.md`（别名 `audit/phase3/composite_findings.md`）
+- 输出到 `audit/phase5/composite_findings.md`
 
 ## 输出
 
-- `audit/phase4/validated_findings.md`（别名 `audit/phase3/findings_verified.md`）
+- `audit/phase4/validated_findings.md`
 - `audit/phase4/validation_results.json`
 - `audit/phase4/rejected_findings.md`
-- `audit/phase5/composite_findings.md`（别名 `audit/phase3/composite_findings.md`）
+- `audit/phase5/composite_findings.md`
 - `audit/poc/<finding-id>/...`

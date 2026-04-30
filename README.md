@@ -68,13 +68,13 @@ code-security-audit/
 │   └── audit-report/                 # Phase 6 报告规则（含模板）
 ├── shared/                           # 共享协议与配置
 │   ├── phase_definitions.md          # 阶段定义
-│   ├── anti_hallucination.md         # 反幻觉铁律
+│   ├── audit_discipline.md           # 审计纪律（反幻觉 + 范围策略）
 │   ├── report_fields.md              # 报告字段定义（严格约束）
 │   ├── composite_vulnerability_analysis.md  # 组合漏洞协议
-│   ├── scope_policy.md               # 审计范围策略
+│   ├── poc_policy.md                  # PoC 安全与证据完整性策略
 │   ├── verification_principles.md    # 验证原则
 │   ├── decompilation.md              # 反编译预处理
-│   ├── dimensions.md                 # 10 个安全维度
+│   │                                  # （dimensions 已内联到 coverage_policy.md）
 │   ├── large_project_audit.md        # 大项目审计约定
 │   ├── audit_output_layout.md        # 产出目录约定
 │   ├── coverage_matrix_template.md   # 覆盖矩阵模板

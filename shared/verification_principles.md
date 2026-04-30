@@ -122,7 +122,7 @@
 - 判定标准：为什么该结果足以证明漏洞存在。
 - 清理步骤：删除测试数据、回滚事务、撤销账号或说明无需清理。
 - 安全限制：是否只读、是否无害、是否未触发破坏性动作。
-- 证据完整性：按 `shared/poc_evidence_integrity.md` 记录执行时间、环境、命令/请求、响应摘要、stdout/stderr/exit code、hash 和脱敏说明。
+- 证据完整性：按 `shared/poc_policy.md` 记录执行时间、环境、命令/请求、响应摘要、stdout/stderr/exit code、hash 和脱敏说明。
 
 不得使用 `TODO`、`REPLACE_XXX`、`此处从略`、省略号等空洞占位。运行时变量如 `{{access-token}}` 可以使用，但必须提供获取步骤。
 

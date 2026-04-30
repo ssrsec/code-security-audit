@@ -142,12 +142,11 @@
 - 对触发条件不成立的 finding 写入 rejected，不进入最终漏洞表。
 - 为可评分漏洞输出 CVSS 向量、CWE、OWASP Top 10、ASVS/WSTG 映射。
 - PoC 必须无害、可复现、包含清理步骤，满足 `shared/verification_principles.md` 第三部分（漏洞类型级 Playbook）的证据要求。
-- 高危/严重漏洞必须有结果摘要或结构化证据，满足 `shared/poc_evidence_integrity.md` 的证据完整性要求。
+- 高危/严重漏洞必须有结果摘要或结构化证据，满足 `shared/poc_policy.md` 的证据完整性要求。
 
 **输出**：
 
-- `audit/phase4/validated_findings.md`（已验证漏洞，与 phase3/findings_verified.md 结构对齐）
-- `audit/phase3/findings_verified.md`（同步别名，含「已确认」和「待验证」两类）
+- `audit/phase4/validated_findings.md`（已验证漏洞，含「已确认」和「待验证」两类）
 - `audit/phase4/validation_results.json`
 - `audit/phase4/rejected_findings.md`
 - `audit/poc/<finding-id>/...`
@@ -172,8 +171,7 @@
 
 **输出**：
 
-- `audit/phase5/composite_findings.md`（漏洞组合分析，**主路径**）
-- `audit/phase3/composite_findings.md`（同步别名）
+- `audit/phase5/composite_findings.md`（漏洞组合分析）
 - `audit/phase5/primitive_registry.md`（所有原语汇总注册表）
 - `audit/phase5/primitive_chains.md`（原语组合攻击链，无命中时写"未发现"）
 

@@ -20,7 +20,7 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash"]
 |---|---|---|
 | 输入 | findings（漏洞候选） | primitives（能力片段） |
 | 推理方向 | 深度：验证单条漏洞是否成立 | 广度：跨原语寻找新攻击路径 |
-| 输出 | findings_verified.md + composite_findings.md | primitive_chains.md |
+| 输出 | validated_findings.md + composite_findings.md | primitive_chains.md |
 
 ## 执行流程
 

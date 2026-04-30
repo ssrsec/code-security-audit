@@ -32,7 +32,7 @@ audit/
 │   └── callchain_tracker.md          # 调用链追踪
 ├── phase3/
 │   ├── false_positive_notes.md       # 反向审查与误报说明
-│   ├── findings_verified.md          # 已验证漏洞（别名，内容与 phase4/validated_findings.md 对齐）
+│   └── false_positive_notes.md       # 误报排除说明
 │   └── composite_findings.md         # 漏洞组合分析（别名，内容与 phase5/composite_findings.md 对齐）
 ├── phase4/
 │   ├── validated_findings.md         # 已验证漏洞（**主路径，权威**，含「已确认」和「待验证」）

@@ -63,18 +63,15 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
 **任务 A（不变）：audit-validate-agent**
 - 传入：所有 `audit/phase2/findings_batch*.md` 合并路径
 - 主产出：`audit/phase4/validated_findings.md`（权威路径）
-- 别名同步：`audit/phase3/findings_verified.md`（内容相同，供向下兼容引用）
-- 组合分析：`audit/phase5/composite_findings.md`（主）+ `audit/phase3/composite_findings.md`（别名）
+- 组合分析：`audit/phase5/composite_findings.md`
 
 **任务 B（新增）：audit-composer-agent**
 - 传入：所有 `audit/phase2/primitives_batch*.md` 合并路径
 - 产出：`audit/phase5/primitive_registry.md` + `audit/phase5/primitive_chains.md`
 
 两者完成后，验证以下文件均存在：
-- `audit/phase4/validated_findings.md`     ✓ 必须存在（主路径）
-- `audit/phase3/findings_verified.md`      ✓ 必须存在（别名）
-- `audit/phase5/composite_findings.md`     ✓ 必须存在（主路径）
-- `audit/phase3/composite_findings.md`     ✓ 必须存在（别名）
+- `audit/phase4/validated_findings.md`     ✓ 必须存在
+- `audit/phase5/composite_findings.md`     ✓ 必须存在
 - `audit/phase5/primitive_registry.md`     ✓ 必须存在
 - `audit/phase5/primitive_chains.md`       ✓ 必须存在（无命中时文件存在，内容为"未发现"）
 

@@ -25,7 +25,7 @@
 ### 3. CORS / 安全头过宽
 
 - **现象**：CORS 配置为 `*` 或允许任意 Origin；缺少 CSP、X-Frame-Options、HSTS 等。
-- **判定**：CORS `*` 在含敏感操作或 Cookie 的场景下可放大 CSRF/跨域风险；结合 scope_policy，强交互 CSRF 默认不纳入，但可记入配置缺陷。
+- **判定**：CORS `*` 在含敏感操作或 Cookie 的场景下可放大 CSRF/跨域风险；结合 audit_discipline，强交互 CSRF 默认不纳入，但可记入配置缺陷。
 
 ### 4. 错误信息泄露
 
