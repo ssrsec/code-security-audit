@@ -1,6 +1,6 @@
 # Fastjson 反序列化成立条件（知识库文档）
 
-供 阶段 4 判断使用；AI 阅读后结合项目版本/配置自行判断，非规则引擎。**（Java 生态；其他语言/框架的反序列化、JSON 库可仿照本结构新增对应文档。）**
+供阶段 4 判断使用；AI 阅读后结合项目版本/配置自行判断，非规则引擎。**（Java 生态；其他语言/框架的反序列化、JSON 库可仿照本结构新增对应文档。）**
 
 ---
 
@@ -14,14 +14,15 @@
 - `JSON.parseArray(input, SomeClass.class)`
 - `JSON.parseObject(input, SomeClass.class)`
 
-原因：指定目标类型时，常见 AutoType 利用路径会显著收缩，很多情况下更接近“输入校验/资源消耗风险”而不是可直接 RCE。
+原因：指定目标类型时，常见 AutoType 利用路径会显著收缩，很多情况下更接近"输入校验/资源消耗风险"而不是可直接 RCE。
 
 **输出建议**：
-- 若仅发现 typed parse 且无 `@type`/AutoType/Feature 配置证据：优先不纳入“真实危害”清单，或标为 **Info**。
-- 若同时满足「版本极旧 + 存在可证明的 Gadget/Feature/配置」：再提升为 **待验证/已确认**（映射：HYPOTHESIS/CONFIRMED）。
+- 若仅发现 typed parse 且无 `@type`/AutoType/Feature 配置证据：优先不纳入"真实危害"清单，或标为 **Info**。
+- 若同时满足「版本极旧 + 存在可证明的 Gadget/Feature/配置」：按 V1-V4 验证等级提升为 **待验证（HYPOTHESIS）/已确认（CONFIRMED）**。
+
 ## 成立条件（按版本）
 
-- **&lt; 1.2.68**：直接可利用（多条公开利用链）。
+- **< 1.2.68**：直接可利用（多条公开利用链）。
 - **1.2.68–1.2.80**：检查 classpath 是否有特定依赖：
   - groovy → 可利用
   - jython + postgresql → 可利用
@@ -40,5 +41,5 @@
   - **Java / Servlet**：`lib/`、`WebRoot/WEB-INF/lib/`、`WEB-INF/lib/`、`src/main/webapp/WEB-INF/lib/`。
   - **其他语言**：Node 看 `package.json`/`package-lock.json`；Python 看 `requirements.txt`/`Pipfile.lock`/`site-packages`；PHP 看 `composer.json`/`vendor`；Go 看 `go.mod`/`go.sum`（Fastjson 为 Java 专用，此处仅说明「版本获取方式」可跨技术栈复用）。
   - **识别方式**：查找文件名匹配 `fastjson-*.jar` 或 `fastjson*.jar` 的包；版本号通常为文件名中最后一个 `-` 与 `.jar` 之间的部分（如 `fastjson-1.2.6.jar` → 1.2.6）。
-  - **报告要求**：若通过依赖目录确认版本，在漏洞条目的「触发条件」或「漏洞原理」中明确写出：**「依赖目录已检查到 fastjson-x.y.z.jar」**，并据此给出成立条件与严重程度（例如：版本 &lt; 1.2.25 存在已知漏洞，但使用指定类型 parse，利用难度大 → Low）。
-- 若**所有途径**均无法确定版本，标为 **待验证（HYPOTHESIS）** 并注明「版本待确认」。
+  - **报告要求**：若通过依赖目录确认版本，在漏洞条目的「触发条件」或「漏洞原理」中明确写出：**「依赖目录已检查到 fastjson-x.y.z.jar」**，并据此给出成立条件与严重程度（例如：版本 < 1.2.25 存在已知漏洞，但使用指定类型 parse，利用难度大 → Low）。
+- 若**所有途径**均无法确定版本，标为 **V1 待验证（HYPOTHESIS）** 并注明「版本待确认」；如果连危险 API 输入来源都无法闭环，则保持 V0 候选线索。

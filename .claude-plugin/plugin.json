@@ -1,0 +1,5 @@
+{
+  "name": "code-security-audit",
+  "version": "0.1.0",
+  "description": "AI 驱动的代码安全审计框架。只关注有实际危害的漏洞，支持全量审计与组合漏洞攻击链分析，采用 Orchestrator + Agent Team 架构按 Phase 0-6 自动完成完整审计流程。"
+}

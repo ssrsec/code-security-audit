@@ -1,21 +1,37 @@
 ---
 name: audit-validate
-description: 阶段 4 漏洞验证与评分。查阅知识库验证成立条件、CVSS评分、反幻觉检查、组合漏洞分析。只产出有实际危害的漏洞，不产出风险点。
+description: 阶段 4 漏洞验证与评分技能，同时承担漏洞级别的组合分析（Phase 5 漏洞组合轨道）。由 audit-orchestrator 在 Phase 4 调度，对 Phase 2 候选漏洞查阅知识库验证成立条件、执行 V0-V4 验证等级判定、PoC/测试生成、CVSS/CWE/OWASP 映射、误报剔除和修复建议，输出 validated_findings.md；Phase 5 继续执行**漏洞组合分析**，基于已确认/待验证漏洞发现组合攻击链，输出 composite_findings.md。**注意**：此技能只负责漏洞+漏洞的组合推理，原语（primitives）组合由 audit-composer-agent 在 Phase 5 并行负责，两者不交叉。只产出有实际危害的漏洞，不产出风险点。
 ---
 
 # 漏洞验证（阶段 4）
 
 ## 角色
 
-负责 阶段 4：对 阶段 2 候选漏洞做成立条件判断、调用链复核、CVSS评分与反幻觉检查。**只产出满足"漏洞"定义的条目，不产出"风险点"。**
+负责阶段 4：把阶段 2/3 的候选 finding 验证为"已确认""待验证"或"不成立"。本阶段是质量门，不允许把未经验证的候选项直接写入最终报告。**只产出满足"漏洞"定义的条目，不产出"风险点"。**
+
+## 输入
+
+- `audit/phase2/candidate_findings.json`
+- `audit/phase3/false_positive_notes.md`
+- `audit/phase1/project_inventory.json`
+- `audit/phase1/auth_model.md`
+- `audit/phase1/framework_authz_map.md`
+- `audit/phase1/dependency_list.json`
+- `audit/phase1/secret_inventory.md`
+- `audit/phase1/coverage_matrix.md`
+- `shared/verification_principles.md`
+- `shared/secret_detection.md`
+- `shared/framework_authz_checklist.md`
+- `shared/poc_safety_policy.md`
+- `shared/poc_evidence_integrity.md`
 
 ## 极致降噪与验证纪律（严禁漏报）
 
 - 你是最终质量关卡，**但绝对不允许在不阅读完整代码/路由的情况下，主观漏报高危漏洞**。
-- 例如：未授权访问（如可直接创建管理员账户的接口）、越权等，必须全盘分析所有在 阶段 2 中发现的候选项。
-- **验证必须在本阶段完成**：绝不允许说出”可先生成报告，后续再验证版本/端口”这样的话。如果需要读代码、找版本号、看配置文件，必须在当前 阶段 4 中立即通过 工具（Read/Glob） 去执行。验证不完，就不能进入 阶段 6。
+- 例如：未授权访问（如可直接创建管理员账户的接口）、越权等，必须全盘分析所有在阶段 2 中发现的候选项。
+- **验证必须在本阶段完成**：绝不允许说出"可先生成报告，后续再验证版本/端口"这样的话。如果需要读代码、找版本号、看配置文件，必须在当前阶段 4 中立即通过工具（Read/Glob/Bash）去执行。验证不完，就不能进入阶段 6。
 
-### 「已确认」与「待验证」的判定（严禁丢弃真实漏洞）
+## 「已确认」与「待验证」判定（严禁丢弃真实漏洞）
 
 **核心原则：代码层面能高度确认存在危险模式的漏洞，必须进入报告。完美 payload 不是准入门槛。**
 
@@ -31,86 +47,109 @@ description: 阶段 4 漏洞验证与评分。查阅知识库验证成立条件�
 - **前端危险调用**（如 `eval`）：代码中确实调用了，只是危害程度取决于服务端返回是否可控
 
 **⚠️ 绝对禁止**：
-- 将高度确认的漏洞降级为”说明段落”放在摘要中（如”Fastjson 反序列化说明（未单列 vul 的原因）”）
+- 将高度确认的漏洞降级为"说明段落"放在摘要中（如"Fastjson 反序列化说明（未单列 vul 的原因）"）
 - 因为无法提供完美 payload 就丢弃整条漏洞
-- 因为”数据来自内部可信源”就排除 —— 内部源可能被其他漏洞污染
+- 因为"数据来自内部可信源"就排除 —— 内部源可能被其他漏洞污染
 
-## 验证步骤
+## 验证等级
 
-### 1. 成立条件验证
+按 `shared/verification_principles.md` 使用 V0-V4：
+
+- V0：代码线索，只能留在候选或残余风险。
+- V1：静态可达（HYPOTHESIS），可作为待验证。
+- V2：最小单元/函数级 PoC 验证。
+- V3：本地集成/容器/服务级验证（CONFIRMED）。
+- V4：用户授权测试环境端到端验证（最高可信 CONFIRMED）。
+
+最终报告中不得把 V0 写成漏洞。V1 必须明确未验证条件。V2-V4 需要记录命令、输入、预期、实际、清理步骤。
+
+## 验证流程
+
+### 1. 成立条件复核
 
 阅读 `resources/knowledge/` 下对应文档，结合项目**依赖版本与配置**判断是否成立：
+
 - 发现 `JSON.parseObject` → 查 Fastjson 版本与 autoType/safeMode 配置
 - 发现 `InitialContext.lookup` → 查 JDK 版本（8u191 前后差异）
 - 发现 `ObjectInputStream.readObject` → 查 classpath 中是否有可利用 Gadget
 
 若无法从构建文件获取版本，扫描依赖目录（lib/、WEB-INF/lib/、node_modules/ 等）从文件名提取。
 
-### 2. 代码优先判定（深度验证）
+对每条候选 finding 检查：
+- 外部输入是否可达入口。
+- 访问权限是否真实可获得。
+- source-to-sink 或控制缺失是否闭环。
+- 防护点是否存在且是否有效。
+- 依赖版本、配置、classpath、运行模式是否支持漏洞条件。
+- 影响是否超出正常业务权限。
+
+### 2. 反向审查
+
+必须挑战 finding：
+- 全局鉴权是否覆盖。
+- ORM 是否参数化。
+- schema validation 是否约束参数。
+- path normalize、白名单、MIME、扩展名是否不可绕过。
+- 框架默认转义/sandbox/safe mode 是否生效。
+- 测试代码或死代码是否被生产加载。
+- 攻击者能否拿到业务 ID、租户 ID、token、状态前置条件。
+
+只有代码或测试证据不能排除时，才保留为待验证。
+
+### 3. 代码优先判定（深度验证）
 
 对每个"若xxx"条件，必须先通过 Read/代码追踪判定，**不要浅尝辄止，要顺着线索深入验证环境和上下文**：
 - 限流 → Read 接口实现和配置
 - 签名校验 → Read 回调处理逻辑
 - 是否对外暴露 → Read 网关/路由配置
-- **反序列化源** → 如果数据来自 Redis/MQ，必须通过全局搜索/Read 寻找向该 Redis key 或 MQ 队列写入数据的地方，验证攻击者是否能控制写入（如某接口能污染该 Redis key）。
+- **反序列化源** → 如果数据来自 Redis/MQ，必须通过全局搜索/Read 寻找向该 Redis key 或 MQ 队列写入数据的地方，验证攻击者是否能控制写入
 
 仅当代码中确实完全无法获知（如部署配置）时，才写"需人工验证"并注明原因。见 `shared/verification_principles.md`。
 
-### 3. 触发条件可行性
+### 4. 触发条件可行性评估
 
 对每条发现评估：
 - **成立**：触发条件可达成 → 标「已确认」
 - **部分成立**：代码层面高度确认但部分条件需运行时验证 → 标「待验证」并在「待验证内容」字段列出具体待确认项
-- **不成立**：代码分析明确证明条件不可达（如 Sink 前有不可绕过的白名单） → 不进入报告
+- **不成立**：代码分析明确证明条件不可达 → 写入 `rejected_findings.md`，不进入报告
 
-**「部分成立」的处理（关键）**：标「待验证」时，必须在漏洞详情中增加**「待验证内容」**字段，逐条列出需要在实际部署环境中验证的具体事项，例如：
+**「待验证」处理（关键）**：标「待验证」时，必须在漏洞详情中增加**「待验证内容」**字段，逐条列出需要在实际部署环境中验证的具体事项，例如：
 - `① 需验证：攻击者是否可通过 SSRF 或缓存污染控制 parseObject 的输入数据`
 - `② 需验证：运行时 classpath 是否包含可利用的 Gadget 依赖`
 - `③ 需验证：实际 DB 方言为 MySQL/Oracle/DM 中的哪种（影响注入 payload 闭合方式）`
 
-### 4. 参数与业务逻辑分析
+### 5. 参数与业务逻辑分析
 
 对"任意文件读取"、"IDOR"、"未授权访问某资源"类结论：
 - 必须分析关键参数（configId/path/resourceId）的来源和约束
 - UUID/仅授权可获知的参数不能直接下"任意XXX"结论
 - 标题和结论必须限定范围（如"文件读取（path 可控，存储 ID 待确认）"）
 
-见 `resources/knowledge/parameter_and_business_logic.md`。
+### 6. PoC/测试生成
 
-### 5. 调用链复核
+执行 PoC 前必须读取 `shared/verification_principles.md`（第二、三部分）、`shared/poc_safety_policy.md` 和 `shared/poc_evidence_integrity.md`，按漏洞类型满足最低验证证据并保存证据包。
 
-- 确认每一跳有文件:行号
-- 断链或不确定的标为待验证
+优先级：
+1. 用户提供测试环境：执行 V4 端到端验证。
+2. 可本地运行：执行 V3 集成验证。
+3. 不可完整运行：写最小化 V2 单元测试或函数级 PoC。
+4. 缺少运行时条件：保留 V1 待验证，并明确缺少什么。
 
-### 6. CVSS评分
+PoC 要求：
+- 无害、可清理、可复现。
+- HTTP 漏洞写 `reproduce.http` 或报告内完整请求。
+- 非 HTTP、多步骤或协议类漏洞写完整脚本或测试。
+- 使用 `{{access-token}}` 这类运行时变量时，必须提供获取步骤。
+- 禁止 `REPLACE_XXX`、`TODO`、省略号、`此处从略` 等空洞占位。
+- 必须记录实际输出：响应码、响应体关键字段、stdout/stderr、exit code、数据库返回、时间差、日志或测试断言。
+- 高危/严重漏洞必须生成 `audit/poc/<finding-id>/result.md` 或 `evidence.json`，记录执行时间、环境、命令/请求、实际输出、清理步骤和限制。
+- RCE/命令执行使用无害命令证明，如 Linux/macOS 的 `whoami`、`id`、`pwd`，Windows 的 `whoami`、`cd`、`ver`。
+- SQL 注入使用只读证明，如时间延迟、当前数据库名、当前用户、版本或 mock 断言最终 SQL；禁止默认执行破坏性 SQL。
 
-按标准的 CVSS 3.1 评分体系计算：
-- **必须输出完整的向量字符串**，格式为 `CVSS:3.1/AV:X/AC:X/PR:X/UI:X/S:X/C:X/I:X/A:X → X.X`
-- **严禁使用"约"、"大约"、"≈"等模糊近似词**。每个指标只有固定的几个枚举值，必须明确选定一个，不存在"约"的空间。
-- 每个指标的选择必须附带简要理由（如 `AV:N` 因为通过网络可达，`PR:L` 因为需要普通用户认证）
-- 若同一漏洞在不同条件下有不同评分（如开启/关闭认证），分别列出两个完整向量字符串及对应分数
-
-### 7. 反幻觉检查
-
-- Glob/Read 验证文件存在
-- 代码片段仅来自 Read
-- 遵守 `shared/anti_hallucination.md`
-
-### 8. 范围策略检查
-
-按 `shared/scope_policy.md` 确认是否属于"有实际危害"的范围。不在范围内的不进入报告。
-
-### 9. PoC / 复现步骤（必填）
-
-- **必须提供详尽的复现步骤。不要以非单一 HTTP 请求为由放弃写步骤。**
-- **可通过 HTTP 复现的**：提供 Burp Suite 格式的完整 HTTP 数据包，标注需替换的参数
-- **非单一 HTTP 请求或其他协议（如 Redis/TCP/SIP 等）**：编写完整的 Python 脚本函数复现，脚本必须可直接复制执行
-- 必须包含：前置条件说明、验证数据包/脚本、预期返回、实战利用数据包/脚本
-
-**反占位符强制规则（零容忍，以下全部违规）**：
+**反占位符强制规则（零容忍）**：
 - `REPLACE_XXX`、`REPLACE_WITH_VALID_XXX`、`YOUR_HOST` 等任何要求读者自行替换的标记
 - `<!-- 此处替换为... -->`、`<root/>` 等用注释或空标签伪装的占位
-- `此处从略`、`从略`、`细节略`、`不再展开`、`需按目标...编写`、`具体 payload 依赖现场...` 等推迟编写话术
+- `此处从略`、`从略`、`细节略`、`不再展开`、`需按目标...编写` 等推迟编写话术
 - **一旦发现以上任何形式，该漏洞条目必须退回重写，不得进入 findings_verified.md**
 
 **正确做法**：
@@ -120,38 +159,105 @@ description: 阶段 4 漏洞验证与评分。查阅知识库验证成立条件�
 
 **反序列化漏洞 payload 强制规则**：
 - 发现反序列化漏洞时，**必须根据项目 classpath 中实际存在的依赖**构造具体 payload，不得使用空壳 XML/JSON
-- XStream：根据版本号（如 1.4.8）查找对应 CVE，给出该 CVE 的完整 exploit XML（如 CVE-2017-7957 的 void 元素链、CVE-2013-7285 的 EventHandler 链等）
+- XStream：根据版本号（如 1.4.8）查找对应 CVE，给出该 CVE 的完整 exploit XML
 - Fastjson：根据版本号（如 1.2.7）给出具体的 `@type` 利用链（如 JdbcRowSetImpl + JNDI、TemplatesImpl 等），包含完整的 JSON payload
 - Java 原生反序列化：根据 classpath 中的 commons-collections/commons-beanutils 等版本给出对应 gadget 链的 Base64 编码 payload 或生成命令（如 ysoserial 命令）
 
 **脚本完整性强制规则**：
 - Python 脚本中严禁出现 `...`（省略号）、`# TODO`、`pass` 占位、或任何不完整的代码片段
 - 必须包含所有 import 语句、完整的协议头/报文构造、正确的编码处理
-- 对于复杂协议（如 SIP、MQTT），必须构造完整的符合协议规范的报文
 
-### 10. 组合漏洞分析（阶段 4 完成后必须执行）
+### 7. CVSS/CWE/OWASP 映射
 
-全部单漏洞验证完成后，按 `shared/composite_vulnerability_analysis.md` 执行组合分析：
-- 检查是否存在漏洞 A 的输出可作为漏洞 B 的输入
-- 检查是否存在"突破隔离"的组合（如 SSRF → 内网反序列化）
-- 输出到 `audit/phase3/composite_findings.md`
+每条进入 `validated_findings.md` 的漏洞必须包含：
 
+- CWE。
+- OWASP Top 10。
+- ASVS/WSTG。
+- **必须输出完整的 CVSS 3.1 向量字符串**，格式为 `CVSS:3.1/AV:X/AC:X/PR:X/UI:X/S:X/C:X/I:X/A:X → X.X`
+- **严禁使用"约"、"大约"、"≈"等模糊近似词**。每个指标的选择必须附带简要理由。
+- 若同一漏洞在不同条件下有不同评分（如开启/关闭认证），分别列出两个完整向量字符串及对应分数。
 
-### 11. 深度依赖与 Gadget 验证机制
-- **彻底抛弃“假如存在 Gadget”这种免责声明**。当发现反序列化（Java: `readObject`/Fastjson, Python: `pickle`/`yaml`, PHP: `unserialize` 等）时，你**必须**亲自去通过 `Read` 检查 `pom.xml`/`build.gradle`/`requirements.txt`/`package.json`，或者去通过 Bash `ls` 检查 `lib/`、`vendor/` 目录，明确找出项目中是否包含常见的 Gadget 依赖（如 CommonsCollections, C3P0, Rome 等）。
-- 如果依赖库或本地代码中找到了 Gadget，直接将漏洞标为“已确认”，并在前置条件中明确写出依赖了哪个库及版本。
-- 如果彻底检查后项目确实不存在任何可利用的 Gadget 链，才可将其降级或者在结论中说明。
+### 8. 结论写入
+
+- 已确认：写入 `audit/phase4/validated_findings.md`（别名 `audit/phase3/findings_verified.md`），验证状态 `已确认`。
+- 待验证：写入同一文件，验证状态 `待验证`，必须列出待验证内容和限制。
+- 不成立：写入 `audit/phase4/rejected_findings.md`，说明排除证据，不进入最终漏洞表。
+
+验证结果同步写入 `audit/phase4/validation_results.json`，schema 参考 `shared/whitebox_audit_schema.md`。
+
+## 重点漏洞验证提示
+
+### 反序列化
+
+- 查依赖版本和 classpath gadget。
+- 查 safe mode、类型白名单、autoType、黑名单绕过。
+- 若 source 来自 Redis/MQ/DB，继续查写入入口。
+- 不能用"假如存在 gadget"作为已确认依据；找不到运行时条件时标待验证。
+- 如果可执行代码路径成立，必须用无害命令输出、mock gadget 断言或测试日志证明执行结果。
+- **彻底抛弃"假如存在 Gadget"这种免责声明**。当发现反序列化时，必须亲自通过 Read 检查 `pom.xml`/`build.gradle`/`requirements.txt`/`package.json`，或通过 Bash ls 检查 `lib/`、`vendor/` 目录，明确找出项目中是否包含常见 Gadget 依赖（如 CommonsCollections、C3P0、Rome 等）。
+- 按实际技术栈读取对应知识库：`fastjson_conditions.md`、`insecure_deserialization.md`、`auth_failures.md` 等。
+
+### 注入
+
+- 区分参数化查询与字符串拼接。
+- 动态表名、列名、排序字段也可能需要白名单。
+- payload 要与数据库方言和上下文闭合方式匹配。
+- 没有数据库环境时，可用单元测试断言最终 SQL/查询对象。
+- SQL 注入验证必须包含基线请求和攻击请求；时间盲注要至少记录多次时间差或稳定测试断言。
+
+### SSRF
+
+- 检查协议限制、内网 IP、重定向、DNS rebinding、IPv6、十进制/八进制/URL 编码。
+- 验证影响：是否能访问云 metadata、内网管理接口、回调服务、Redis/HTTP 内部接口。
+- 无测试环境时，用本地 mock server 验证发起请求和绕过路径。
+
+### 未授权访问 / 认证绕过
+
+- 必须比较无认证/低权限请求与高权限或合法请求。
+- 记录预期安全行为（401/403/404/空数据）与实际行为（200/成功码/敏感字段/状态变更）。
+- 只证明"接口可访问"不够，必须证明访问结果突破认证或授权边界。
+
+### 敏感信息泄露
+
+- 明确泄露类型：账号、密码、API key、JWT secret、私钥、数据库连接串、session、PII、订单/支付数据、内部 URL、堆栈。
+- 对凭据/密钥优先验证可用性，但报告展示必须脱敏。
+- 仅普通版本号、非敏感路径或一般日志不默认进入漏洞表。
+- 按 `shared/secret_detection.md` 验证：生产可达性、服务对应关系、最小只读可用性、脱敏展示和轮换建议。
+
+### 越权/IDOR/BOLA
+
+- 需要证明低权限用户能访问或操作不属于自己的资源。
+- 没有测试环境时，用服务层单元测试或 repository mock 证明缺少 owner/tenant 条件。
+- 如果业务 ID 只有高权限可获得，应标明限制。
+
+### 多接口组合利用
+
+- 至少由两个已确认或待验证漏洞组成。
+- 必须证明能力转移：第一个漏洞获得的数据、权限、网络可达性或文件如何成为第二个漏洞前置条件。
+- 输出请求序列、关键响应、组合后影响和每一步验证等级。
 
 ## 漏洞详情必填字段
 
-每条写入 `findings_verified.md` 的漏洞必须包含 `shared/report_fields.md` 中定义的**全部字段**：
+每条写入 `validated_findings.md` 的漏洞必须包含 `shared/report_fields.md` 中定义的**全部字段**：
 
 - 漏洞详情信息必须使用 Markdown 表格展现（包括：漏洞编号、漏洞名称、漏洞描述、漏洞等级、验证状态、CVSS评分、前置条件、访问权限、调用链，超链接的 href 中严禁包含 `#L行号`，以防 IDE 跳转失败）
+- 待验证漏洞必须增加「待验证内容」字段
 - 【复现步骤】（真实数据包，严禁模板）、【实战利用】、【修复建议】
 
 **缺少任何字段的漏洞不得进入报告。**
 
+### 阶段 5：组合漏洞分析（阶段 4 完成后执行）
+
+全部单漏洞验证完成后，按 `shared/composite_vulnerability_analysis.md` 执行漏洞组合分析：
+- 检查是否存在漏洞 A 的输出可作为漏洞 B 的输入
+- 检查是否存在"突破隔离"的组合（如 SSRF → 内网反序列化）
+- 输出到 `audit/phase5/composite_findings.md`（别名 `audit/phase3/composite_findings.md`）
+
 ## 输出
 
-- `audit/phase3/findings_verified.md`：已验证漏洞（仅含已确认和待验证）
-- `audit/phase3/composite_findings.md`：组合漏洞分析结果
+- `audit/phase4/validated_findings.md`（别名 `audit/phase3/findings_verified.md`）
+- `audit/phase4/validation_results.json`
+- `audit/phase4/rejected_findings.md`
+- `audit/phase5/composite_findings.md`（别名 `audit/phase3/composite_findings.md`）
+- `audit/poc/<finding-id>/...`
