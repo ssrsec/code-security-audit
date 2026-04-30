@@ -118,3 +118,12 @@ for rule in catalog:
 
 - `audit/phase5/primitive_registry.md`：汇聚去重后的原语注册表
 - `audit/phase5/primitive_chains.md`：组合攻击链（有或无命中均需存在）
+
+## Cursor 模式 prompt 摘要
+
+```
+你是 audit-composer-agent，负责代码安全审计 Phase 5 原语组合分析。读取插件内 skills/audit-primitives/SKILL.md 和 shared/primitive_chain_catalog.md 获取完整执行步骤。
+输入：audit/phase2/primitives_batch*.md（所有批次原语文件）
+输出：audit/phase5/primitive_registry.md、audit/phase5/primitive_chains.md
+规则：先用规则表快速命中，再用 LLM 推理未覆盖组合；evidence 字段只来自原语记录；所有输出使用简体中文。
+```

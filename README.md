@@ -38,12 +38,15 @@ audit-orchestrator（总编排控制器）
 
 ## 安装
 
-```bash
-# 作为 Claude Code 插件安装（本地路径）
-claude --plugin-dir /path/to/code-security-audit
+### Claude Code
 
-# 或将目录加入 Claude Code 插件配置
+```bash
+claude --plugin-dir /path/to/code-security-audit
 ```
+
+### Cursor
+
+将本目录置于项目根的 `.cursor/skills/` 下，或通过 `.cursor-plugin/plugin.json` 注册。orchestrator 会自动检测平台并使用 Task 工具调度子 Agent。
 
 ## 目录结构
 
@@ -57,6 +60,7 @@ code-security-audit/
 │   ├── audit-sink-agent.md           # Phase 2 Sink-driven
 │   ├── audit-control-agent.md        # Phase 2 Control-driven
 │   ├── audit-validate-agent.md       # Phase 4+5 验证+组合
+│   ├── audit-composer-agent.md       # Phase 5 原语组合推理
 │   └── audit-report-agent.md         # Phase 6 报告
 ├── skills/
 │   ├── code-security-audit/          # 主控 skill（总协议）
@@ -74,7 +78,8 @@ code-security-audit/
 │   ├── poc_policy.md                  # PoC 安全与证据完整性策略
 │   ├── verification_principles.md    # 验证原则
 │   ├── decompilation.md              # 反编译预处理
-│   │                                  # （dimensions 已内联到 coverage_policy.md）
+│   ├── coverage_policy.md             # 覆盖率策略（含 10 安全维度）
+│   ├── platform_dispatch.md           # 跨平台 Agent 调度策略
 │   ├── large_project_audit.md        # 大项目审计约定
 │   ├── audit_output_layout.md        # 产出目录约定
 │   ├── coverage_matrix_template.md   # 覆盖矩阵模板

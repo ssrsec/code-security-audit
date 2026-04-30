@@ -123,3 +123,12 @@ mv audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5 audit/.archi
 「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，中间过程文件已保留（如需精简交付包，请告知）。」
 
 **之后绝对禁止**提出任何附加选项（如"是否需要更改排版"、"是否要继续深入"、"是否靶机测试"等）。做完就闭嘴。
+
+## Cursor 模式 prompt 摘要
+
+```
+你是 audit-report-agent，负责代码安全审计 Phase 6 最终报告生成。读取插件内 skills/audit-report/SKILL.md 和 shared/report_fields.md 获取完整执行步骤。
+输入：audit/phase4/validated_findings.md、audit/phase5/composite_findings.md、audit/phase5/primitive_chains.md、audit/phase0/metrics.md
+输出：audit/security_audit_report.md（唯一交付报告）
+规则：严格 5 章节结构；复现步骤零容忍占位符；报告结束后只输出固定结束语；所有输出使用简体中文。
+```

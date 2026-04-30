@@ -30,6 +30,7 @@ description: 面向有源码白盒场景的 LLM 代码安全审计总控协议�
 | `shared/poc_policy.md` | 需要生成 PoC、复现步骤、实战利用、证据包、evidence.json、hash、脱敏证据时 |
 | `shared/report_fields.md` | 阶段 6 输出最终报告时 |
 | `shared/composite_vulnerability_analysis.md` | 阶段 5 组合漏洞分析时 |
+| `shared/platform_dispatch.md` | 编排器检测宿主平台、调度子 Agent、处理失败恢复时 |
 
 ## 核心原则
 

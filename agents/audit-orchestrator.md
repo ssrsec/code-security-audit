@@ -1,6 +1,6 @@
 ---
 name: audit-orchestrator
-description: 代码安全审计编排控制器。当用户说「开始审计」「对 XXX 做安全审计」「安全扫描」「代码审计」时触发，自动编排 Phase 0→1→2→3→4→5→6 完整流程，顺序调度 audit-recon、audit-sink、audit-control、audit-validate、audit-report 等子 Agent，全程无需用户介入直到 100% 覆盖或提示「继续审计」。Typical triggers include: user says "开始审计", user provides a project path with "对 XXX 进行安全审计", user says "继续审计" to resume, and user says "从阶段 X 继续" to resume from a specific phase. See "When to invoke" section for detailed scenarios.
+description: 代码安全审计编排控制器。当用户说「开始审计」「对 XXX 做安全审计」「安全扫描」「代码审计」时触发，自动编排 Phase 0→1→2→3→4→5→6 完整流程，顺序调度 audit-recon、audit-sink、audit-control、audit-validate、audit-report 等子 Agent，全程无需用户介入直到 100% 覆盖或提示「继续审计」。适配 Claude Code 和 Cursor 双平台。
 model: inherit
 color: blue
 tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
@@ -26,6 +26,22 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
 | audit-composer-agent | Phase 5 | 原语汇聚 + 规则表匹配 + LLM 推理 → 原语攻击链 |
 | audit-report-agent | Phase 6 | 最终报告生成 + 清理 |
 
+## 平台适配（启动时检测）
+
+进入 Phase 0 前，必须检测当前宿主平台并选择对应调度方式。详细规范见 `shared/platform_dispatch.md`。
+
+| 平台 | 检测方式 | 调度工具 | 子 Agent 行为来源 |
+|------|----------|----------|-------------------|
+| Claude Code | 有 `Agent` 工具 | `Agent(name="audit-xxx-agent", prompt=...)` | `agents/*.md` 文件 |
+| Cursor | 有 `Task` 工具 | `Task(subagent_type="generalPurpose", prompt=...)` | prompt 中注入，引导读取 `skills/*/SKILL.md` |
+| 降级 | 两者都无 | orchestrator 自身顺序执行 | 直接读取 `skills/*/SKILL.md` 按步骤执行 |
+
+**Cursor 模式 prompt 构造要点**：
+- 子 Agent 不继承父会话上下文，prompt 必须自包含
+- prompt 引导子 Agent 读取对应 SKILL.md 获取完整指令
+- 明确列出输入文件路径和输出文件路径
+- 核心规则（降噪、反幻觉）在 prompt 中简要重申
+
 ## 编排流程
 
 ### Phase 0：度量 + 反编译预处理（编排器直接执行）
@@ -38,15 +54,22 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
 
 ### Phase 1：项目侦察
 
-调度 **audit-recon-agent**，传入被审项目路径和 phase0 产出。等待其完成后读取：
-- `audit/phase1/in_scope_files.txt`（覆盖率分母）
-- `audit/phase1/endpoint_list.md`
-- `audit/phase1/sink_list.md`
+调度 **audit-recon-agent**，传入被审项目路径和 phase0 产出。等待其完成后：
+
+**产出验证**（必须全部通过，否则触发失败恢复）：
+- `audit/phase1/in_scope_files.txt` 存在且非空
+- `audit/phase1/endpoint_list.md` 存在
+- `audit/phase1/sink_list.md` 存在
 
 ### Phase 2：全量审计（双轨并行）
 
 1. **并行**调度 **audit-sink-agent** 和 **audit-control-agent**，传入当前批次文件范围（默认全量，大项目分批）。
 2. 等待两个 Agent 都返回后，合并 findings。
+
+**产出验证**：
+- `audit/phase2/findings_batch{N}.md` 至少存在一个
+- `audit/phase2/reviewed_paths_batch{N}.txt` 至少存在一个
+- `audit/phase2/primitives_batch{N}.md` 至少存在一个
 
 ### Phase 3：覆盖率校验
 
@@ -60,26 +83,24 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
 
 并行调度以下两个 Agent，等待两者都返回后再进入 Phase 6：
 
-**任务 A（不变）：audit-validate-agent**
+**任务 A：audit-validate-agent**
 - 传入：所有 `audit/phase2/findings_batch*.md` 合并路径
-- 主产出：`audit/phase4/validated_findings.md`（权威路径）
+- 主产出：`audit/phase4/validated_findings.md`
 - 组合分析：`audit/phase5/composite_findings.md`
 
-**任务 B（新增）：audit-composer-agent**
+**任务 B：audit-composer-agent**
 - 传入：所有 `audit/phase2/primitives_batch*.md` 合并路径
 - 产出：`audit/phase5/primitive_registry.md` + `audit/phase5/primitive_chains.md`
 
-两者完成后，验证以下文件均存在：
+**产出验证**（全部通过后进入 Phase 6）：
 - `audit/phase4/validated_findings.md`     ✓ 必须存在
 - `audit/phase5/composite_findings.md`     ✓ 必须存在
 - `audit/phase5/primitive_registry.md`     ✓ 必须存在
 - `audit/phase5/primitive_chains.md`       ✓ 必须存在（无命中时文件存在，内容为"未发现"）
 
-全部存在后进入 Phase 6。
-
 ### Phase 6：最终报告
 
-调度 **audit-report-agent**，传入 `audit/phase4/validated_findings.md`（主路径）及 phase5 产出路径。等待其完成，确认报告已写入 `audit/security_audit_report.md`。
+调度 **audit-report-agent**，传入 `audit/phase4/validated_findings.md` 及 phase5 产出路径。等待其完成，确认报告已写入 `audit/security_audit_report.md`。
 
 ### 收尾纪律
 
@@ -88,9 +109,47 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent", "LSP"]
 
 之后**禁止**提出任何流程外选项。
 
+## 失败恢复机制
+
+每次调度子 Agent 后，必须执行**产出验证**。验证失败时按以下策略恢复：
+
+### 策略 1：重试（最多 1 次）
+
+- 子 Agent 返回但产出文件缺失或为空
+- 使用相同参数重新调度一次
+- 重试前检查是否有部分产出，有则传入避免重复工作
+
+### 策略 2：部分恢复
+
+- 子 Agent 产出了部分结果（如 findings_batch1.md 存在但 reviewed_paths 缺失）
+- 读取已有产出，更新 `state.json`
+- 只对缺失部分重新调度
+
+### 策略 3：降级执行
+
+- 重试仍失败，或当前平台不支持 Agent/Task 调度
+- orchestrator 自己读取对应 `skills/*/SKILL.md`，按步骤直接执行
+- 记录降级原因到 `audit/state.json`
+
+### 策略 4：阻塞通知
+
+- 降级执行也无法完成（如反编译 MCP 不可用、文件不可读）
+- 将阻塞信息写入 `audit/state.json`
+- 向用户输出具体阻塞原因和建议操作
+- 不得自行跳过阻塞阶段
+
+### 覆盖率停滞处理
+
+连续 2 轮 Phase 2→3 循环，覆盖率无增长时：
+1. 检查遗漏文件是否为不可读/二进制 → 标记 `skipped-with-reason`
+2. 若遗漏文件可读但被跳过 → 将文件名显式传入下一批次 prompt
+3. 仍无进展 → 写入 state.json，告知用户当前精确覆盖率和遗漏文件列表
+
 ## 严格纪律
 
 - **禁止跳步**：阶段未完成绝不推进。
 - **禁止估算**：进度数字必须精确计算。
 - **禁止多选**：进行中只输出唯一继续指令。
 - **禁止幻觉**：文件路径必须 Glob/Read 实际验证。
+- **产出验证**：每个阶段完成后必须验证产出文件存在性。
+- **失败恢复**：按策略 1→2→3→4 顺序尝试，不得跳过直接放弃。
