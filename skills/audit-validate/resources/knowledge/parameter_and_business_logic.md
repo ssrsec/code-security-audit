@@ -1,7 +1,44 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 业务逻辑漏洞
+- 参数篡改
+- Mass Assignment
+- 竞态条件
+- TOCTOU
+- 价格篡改
+- 权限提升
+- 状态机绕过
+- 重放攻击
+- 幂等
+cwe:
+- CWE-840
+- CWE-362
+- CWE-915
+owasp:
+- A04:2021
+nuclei_tags:
+- misconfig
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- business_logic
+- race_condition
+- mass_assignment
+severity_range:
+- medium
+- critical
+references:
+- OWASP Top 10 A04:2021
+- OWASP CheatSheetSeries/Mass Assignment
 ---
+
 
 # 参数与业务逻辑分析（通用）
 

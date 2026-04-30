@@ -1,7 +1,51 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- SQL注入
+- sqli
+- SQL injection
+- PreparedStatement
+- MyBatis
+- ${}
+- '#{}'
+- string concatenation
+- raw query
+- ORDER BY
+- dynamic column
+- HQL
+- JPQL
+- NoSQL injection
+- LDAP injection
+cwe:
+- CWE-89
+- CWE-943
+cwe_rank: 2
+owasp:
+- A03:2021
+nuclei_tags:
+- sqli
+- injection
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+- Ruby
+vuln_types:
+- injection
+- sql_injection
+severity_range:
+- high
+- critical
+references:
+- OWASP CheatSheetSeries (31.7k stars)
+- PayloadsAllTheThings/SQL Injection (64k stars)
+- 'CWE Top 25 #2 (2025)'
 ---
+
 
 # SQL 注入成立条件（通用）
 

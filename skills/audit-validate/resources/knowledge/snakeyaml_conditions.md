@@ -1,7 +1,33 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- SnakeYAML
+- YAML反序列化
+- yaml.load
+- Constructor
+- SafeConstructor
+- '!!python/object'
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+- yaml
+frameworks:
+- Java
+- Python
+vuln_types:
+- deserialization
+- rce
+severity_range:
+- high
+- critical
+references:
+- PayloadsAllTheThings/Insecure Deserialization
 ---
+
 
 # SnakeYAML / YAML 反序列化成立条件
 

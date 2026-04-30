@@ -1,7 +1,47 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 授权缺陷
+- 越权
+- 未授权访问
+- IDOR
+- BOLA
+- 水平越权
+- 垂直越权
+- 权限绕过
+- Missing Authorization
+- Access Control
+cwe:
+- CWE-862
+- CWE-863
+- CWE-639
+cwe_rank: 4
+owasp:
+- A01:2021
+nuclei_tags:
+- auth-bypass
+- idor
+- misconfig
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- authorization
+- idor
+- access_control
+severity_range:
+- medium
+- critical
+references:
+- 'CWE Top 25 #4 Missing Authorization (2025)'
+- OWASP Top 10 A01:2021
 ---
+
 
 # 授权/拦截层通用审计要点
 

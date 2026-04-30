@@ -1,7 +1,34 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- pickle
+- Python反序列化
+- PyYAML
+- yaml.load
+- marshal
+- __reduce__
+- shelve
+- cPickle
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+- python
+frameworks:
+- Python
+vuln_types:
+- deserialization
+- rce
+severity_range:
+- critical
+references:
+- 'PayloadsAllTheThings/Insecure Deserialization/Python (2026 update: eval-based universal
+  payload)'
 ---
+
 
 # Python Pickle / PyYAML 反序列化成立条件
 

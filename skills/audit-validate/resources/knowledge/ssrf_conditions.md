@@ -1,7 +1,42 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- SSRF
+- 服务端请求伪造
+- Server-Side Request Forgery
+- URL fetch
+- webhook
+- callback
+- proxy
+- DNS rebinding
+- redirect
+- internal network
+cwe:
+- CWE-918
+owasp:
+- A10:2021
+nuclei_tags:
+- ssrf
+- oast
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- ssrf
+- network
+severity_range:
+- medium
+- critical
+references:
+- OWASP Top 10 A10:2021
+- PayloadsAllTheThings/SSRF
 ---
+
 
 # SSRF 成立条件（通用）
 

@@ -253,13 +253,38 @@ PoC 要求：
 - 检查是否存在"突破隔离"的组合（如 SSRF → 内网反序列化）
 - 输出到 `audit/phase5/composite_findings.md`
 
-## 知识库参考（含自学习沉淀）
+## 知识库智能检索（含自学习沉淀）
 
-验证漏洞时，除参考主知识库 `skills/audit-validate/resources/knowledge/*.md` 外，还必须检查自学习目录 `skills/audit-validate/resources/knowledge/learned/` 中是否有匹配的模式。
+每个知识库文件的 YAML 头部包含丰富的元数据（keywords、CWE、OWASP、frameworks、vuln_types），来源于 CWE Top 25 (2025)、OWASP Top 10、PayloadsAllTheThings (64k stars)、Nuclei-templates (12.1k stars) 等权威项目。
 
-**参考优先级**：
-1. 主知识库（人工审核，高可信度）
-2. 自学习目录（自动沉淀，供参考）
+### 自动检索流程
+
+验证每条候选漏洞时，按以下方式定位相关知识文档：
+
+1. **CWE 精确匹配**：用 Grep 在 `resources/knowledge/` 目录搜索候选漏洞的 CWE ID（如 `CWE-89`），命中的文件优先阅读。
+2. **漏洞类型匹配**：用 Grep 搜索 YAML 头中的 `vuln_types` 字段（如 `sql_injection`、`deserialization`）。
+3. **关键词模糊匹配**：用 Grep 搜索 YAML 头中的 `keywords` 字段（如 `Fastjson`、`autoType`）。
+4. **框架过滤**：根据项目技术栈，在 `frameworks` 字段中筛选（如只看 Java 相关文档）。
+
+**查询示例**（Agent 直接执行 Grep）：
+```bash
+# 按 CWE 查找
+rg "CWE-502" skills/audit-validate/resources/knowledge/ -l
+# 按漏洞类型查找
+rg "deserialization" skills/audit-validate/resources/knowledge/ -l
+# 按框架过滤
+rg "frameworks:.*Java" skills/audit-validate/resources/knowledge/ -l
+```
+
+或使用辅助脚本（可选）：
+```bash
+python3 scripts/knowledge_query.py --cwe CWE-89 --framework Java --json
+```
+
+### 参考优先级
+
+1. 主知识库 `resources/knowledge/*.md`（人工审核 + 权威来源，高可信度）
+2. 自学习目录 `resources/knowledge/learned/`（审计沉淀，供参考）
 
 若 learned/ 中的模式与主知识库矛盾，以主知识库为准。
 

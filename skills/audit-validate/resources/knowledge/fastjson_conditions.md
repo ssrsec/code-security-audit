@@ -1,7 +1,37 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- Fastjson
+- 反序列化
+- autoType
+- deserialization
+- parseObject
+- JSON.parse
+- gadget chain
+- JNDI
+- RMI
+- LDAP
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+- fastjson
+- rce
+frameworks:
+- Java
+vuln_types:
+- deserialization
+- rce
+severity_range:
+- critical
+references:
+- PayloadsAllTheThings/Insecure Deserialization
+- Nuclei-templates fastjson (12.1k stars)
 ---
+
 
 # Fastjson 反序列化成立条件（知识库文档）
 

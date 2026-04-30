@@ -1,7 +1,48 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 加密缺陷
+- 密码学失败
+- 弱加密
+- 硬编码密钥
+- MD5
+- SHA1
+- DES
+- ECB
+- 弱随机数
+- 明文传输
+- 证书校验
+- JWT secret
+cwe:
+- CWE-327
+- CWE-328
+- CWE-321
+- CWE-330
+owasp:
+- A02:2021
+nuclei_tags:
+- exposure
+- token
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- crypto
+- hardcoded_secret
+- weak_crypto
+severity_range:
+- medium
+- high
+references:
+- OWASP Top 10 A02:2021
+- OWASP CheatSheetSeries/Cryptographic Storage
 ---
+
 
 # 加密与敏感数据缺陷成立条件（通用）
 

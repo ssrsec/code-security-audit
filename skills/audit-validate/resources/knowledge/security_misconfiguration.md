@@ -1,7 +1,45 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 安全配置错误
+- misconfiguration
+- debug模式
+- 默认凭据
+- 错误回显
+- CORS
+- CSRF
+- Actuator
+- Swagger
+- Druid
+- phpinfo
+cwe:
+- CWE-16
+- CWE-1188
+owasp:
+- A05:2021
+nuclei_tags:
+- misconfig
+- exposure
+- panel
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- misconfiguration
+- info_disclosure
+severity_range:
+- low
+- high
+references:
+- OWASP Top 10 A05:2021
+- Nuclei-templates misconfig (top tag)
 ---
+
 
 # 安全配置错误成立条件（通用）
 

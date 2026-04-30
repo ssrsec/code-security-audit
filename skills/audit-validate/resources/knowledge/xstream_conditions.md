@@ -1,7 +1,31 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- XStream
+- XML反序列化
+- XML deserialization
+- fromXML
+- SecurityFramework
+- allowedTypes
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+- xstream
+frameworks:
+- Java
+vuln_types:
+- deserialization
+- rce
+severity_range:
+- critical
+references:
+- PayloadsAllTheThings/Insecure Deserialization
 ---
+
 
 # XStream 反序列化成立条件
 

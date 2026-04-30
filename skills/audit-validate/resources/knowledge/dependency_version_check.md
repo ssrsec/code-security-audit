@@ -1,7 +1,41 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 依赖检查
+- 组件漏洞
+- CVE
+- 版本检查
+- SCA
+- supply chain
+- outdated component
+- known vulnerability
+cwe:
+- CWE-1395
+owasp:
+- A06:2021
+nuclei_tags:
+- cve
+- vuln
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- dependency
+- supply_chain
+- known_cve
+severity_range:
+- low
+- critical
+references:
+- OWASP Top 10 A06:2021
+- Nuclei-templates CVE (3587 templates)
 ---
+
 
 # 依赖版本获取（通用）
 

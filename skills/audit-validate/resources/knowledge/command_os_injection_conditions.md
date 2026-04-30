@@ -1,7 +1,47 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 命令注入
+- OS注入
+- command injection
+- RCE
+- Runtime.exec
+- ProcessBuilder
+- os.system
+- subprocess
+- child_process
+- exec
+- shell injection
+- code execution
+cwe:
+- CWE-78
+- CWE-77
+cwe_rank: 9
+owasp:
+- A03:2021
+nuclei_tags:
+- rce
+- command-injection
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- injection
+- command_injection
+- rce
+severity_range:
+- high
+- critical
+references:
+- 'CWE Top 25 #9 (2025)'
+- PayloadsAllTheThings/Command Injection
 ---
+
 
 # 命令注入 / 操作系统注入成立条件（通用）
 

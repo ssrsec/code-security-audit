@@ -1,7 +1,34 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- Jackson
+- 多态反序列化
+- polymorphic deserialization
+- ObjectMapper
+- enableDefaultTyping
+- JsonTypeInfo
+- gadget
+- PolymorphicTypeValidator
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+- jackson
+frameworks:
+- Java
+vuln_types:
+- deserialization
+- rce
+severity_range:
+- high
+- critical
+references:
+- PayloadsAllTheThings/Insecure Deserialization
 ---
+
 
 # Jackson 多态反序列化成立条件
 

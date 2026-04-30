@@ -1,7 +1,35 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- Java原生反序列化
+- ObjectInputStream
+- readObject
+- Serializable
+- gadget chain
+- ysoserial
+- Commons Collections
+- Spring
+- BeanUtils
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+- java
+frameworks:
+- Java
+vuln_types:
+- deserialization
+- rce
+severity_range:
+- critical
+references:
+- PayloadsAllTheThings/Insecure Deserialization/Java
+- ysoserial (6.8k stars)
 ---
+
 
 # Java 原生反序列化成立条件
 

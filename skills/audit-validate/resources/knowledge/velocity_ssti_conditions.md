@@ -1,7 +1,39 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- SSTI
+- 模板注入
+- Server-Side Template Injection
+- Velocity
+- VelocityEngine
+- evaluate
+- FreeMarker
+- Thymeleaf
+- Handlebars
+cwe:
+- CWE-1336
+- CWE-94
+cwe_rank: 10
+owasp:
+- A03:2021
+nuclei_tags:
+- ssti
+- template-injection
+frameworks:
+- Java
+vuln_types:
+- injection
+- ssti
+- rce
+severity_range:
+- high
+- critical
+references:
+- 'CWE Top 25 #10 Code Injection (2025)'
+- 'PayloadsAllTheThings/SSTI (2026 update: error/boolean/time-based detection)'
 ---
+
 
 # Velocity SSTI 成立条件（知识库文档）
 

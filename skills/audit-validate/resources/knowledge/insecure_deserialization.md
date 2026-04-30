@@ -1,7 +1,37 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 不安全反序列化
+- insecure deserialization
+- 反序列化
+- gadget chain
+- RCE
+- 序列化
+- 对象注入
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+frameworks:
+- Java
+- Python
+- PHP
+- .NET
+- Ruby
+- Node.js
+vuln_types:
+- deserialization
+severity_range:
+- high
+- critical
+references:
+- OWASP Top 10 A08:2021
+- PayloadsAllTheThings/Insecure Deserialization (64k stars)
 ---
+
 
 # 不安全反序列化成立条件（通用）
 

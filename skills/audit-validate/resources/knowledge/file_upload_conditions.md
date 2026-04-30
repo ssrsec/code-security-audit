@@ -1,7 +1,51 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 文件上传
+- file upload
+- path traversal
+- 路径穿越
+- 任意文件读写
+- zip slip
+- IFormFile
+- multipart
+- extension bypass
+- MIME
+- magic bytes
+- webshell
+cwe:
+- CWE-434
+- CWE-22
+cwe_rank: 6
+owasp:
+- A01:2021
+- A08:2021
+nuclei_tags:
+- fileupload
+- lfi
+- rfi
+- traversal
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- file_upload
+- path_traversal
+- arbitrary_file
+severity_range:
+- medium
+- critical
+references:
+- 'CWE Top 25 #6 Path Traversal (2025)'
+- PayloadsAllTheThings/Upload Insecure Files
+- PayloadsAllTheThings/Directory Traversal
 ---
+
 
 # 文件上传 / 存储成立条件（通用）
 

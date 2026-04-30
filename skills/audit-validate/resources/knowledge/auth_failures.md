@@ -1,7 +1,47 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- 认证缺陷
+- authentication failure
+- 会话管理
+- 登录绕过
+- 密码重置
+- 暴力破解
+- JWT
+- Session
+- Cookie
+- OAuth
+- OIDC
+- SSO
+cwe:
+- CWE-287
+- CWE-384
+- CWE-613
+owasp:
+- A07:2021
+nuclei_tags:
+- auth-bypass
+- default-login
+frameworks:
+- Java
+- Python
+- PHP
+- Node.js
+- Go
+- .NET
+vuln_types:
+- authentication
+- session
+- auth_bypass
+severity_range:
+- medium
+- critical
+references:
+- OWASP Top 10 A07:2021
+- OWASP CheatSheetSeries/Authentication
 ---
+
 
 # 认证与身份验证缺陷成立条件（通用）
 

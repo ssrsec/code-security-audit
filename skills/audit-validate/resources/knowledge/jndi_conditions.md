@@ -1,7 +1,39 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- JNDI注入
+- JNDI injection
+- Log4Shell
+- Log4j
+- InitialContext
+- lookup
+- RMI
+- LDAP
+- DNS
+- CVE-2021-44228
+cwe:
+- CWE-917
+- CWE-20
+owasp:
+- A03:2021
+nuclei_tags:
+- jndi
+- log4j
+- rce
+frameworks:
+- Java
+vuln_types:
+- injection
+- jndi
+- rce
+severity_range:
+- critical
+references:
+- Nuclei-templates log4j
+- PayloadsAllTheThings/JNDI Injection
 ---
+
 
 # JNDI 注入成立条件（知识库文档）
 

@@ -1,7 +1,33 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- .NET反序列化
+- BinaryFormatter
+- ViewState
+- LosFormatter
+- ObjectStateFormatter
+- TypeNameHandling
+- DataContractSerializer
+- XmlSerializer
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+- dotnet
+frameworks:
+- .NET
+vuln_types:
+- deserialization
+- rce
+severity_range:
+- critical
+references:
+- PayloadsAllTheThings/Insecure Deserialization/.NET
 ---
+
 
 # .NET 不安全反序列化成立条件
 

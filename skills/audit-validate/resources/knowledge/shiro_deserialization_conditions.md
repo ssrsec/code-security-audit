@@ -1,7 +1,36 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- Shiro
+- RememberMe
+- 反序列化
+- AES
+- CBC
+- DefaultSerializer
+- 硬编码密钥
+cwe:
+- CWE-502
+- CWE-321
+owasp:
+- A08:2021
+- A02:2021
+nuclei_tags:
+- deserialization
+- shiro
+- rce
+frameworks:
+- Java
+vuln_types:
+- deserialization
+- rce
+- hardcoded_key
+severity_range:
+- critical
+references:
+- Nuclei-templates shiro
 ---
+
 
 # Apache Shiro RememberMe 反序列化条件
 

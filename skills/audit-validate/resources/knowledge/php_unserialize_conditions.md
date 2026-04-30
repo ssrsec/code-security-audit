@@ -1,7 +1,32 @@
 ---
-last_updated: "2026-04-30"
-version: "1.0"
+last_updated: '2026-04-30'
+version: '1.0'
+keywords:
+- PHP反序列化
+- unserialize
+- phar://
+- __wakeup
+- __destruct
+- POP chain
+- gadget
+cwe:
+- CWE-502
+owasp:
+- A08:2021
+nuclei_tags:
+- deserialization
+- php
+frameworks:
+- PHP
+vuln_types:
+- deserialization
+- rce
+severity_range:
+- critical
+references:
+- PayloadsAllTheThings/Insecure Deserialization/PHP
 ---
+
 
 # PHP unserialize 对象注入成立条件
 
