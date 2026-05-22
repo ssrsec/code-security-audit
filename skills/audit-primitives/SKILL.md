@@ -1,27 +1,37 @@
 ---
 name: audit-primitives
-description: 安全原语识别与发射技能。在 Phase 2 审计（Sink-driven 或 Control-driven）过程中，当发现单独不构成漏洞但具有可被组合利用的能力片段时，必须使用此 skill 的规范格式记录原语。典型场景：发现受限文件写（路径被约束）、可控 SSRF（仅能访问部分内网）、受限读（路径前缀固定）、可预测 Token（需配合其他漏洞）等单独低危或无危害的能力片段。即使该原语 standalone_severity 为 none，也必须记录——原语的价值在于组合。所有由 audit-sink-agent 或 audit-control-agent 在 Phase 2 中发现的能力片段都应调用此格式发射。
+description: 安全原语识别格式契约（schema audit-primitive/v1）。在 Phase 2 由 audit-sink-agent / audit-control-agent 在发现"能力片段但单独不构成漏洞"时调用本格式发射记录。不主动调度（由 sink/control 触发）、不参与原语组合推理（→ audit-composer-agent 在 Phase 5）。
 ---
 
-# 安全原语识别与发射（Phase 2 增强）
+# 安全原语识别与发射格式（Phase 2 增强）
+
+## Banned Patterns（零容忍）
+
+- 禁止：把已构成完整漏洞的 finding 同时记为原语（重复记录）。
+- 禁止：把完全不可利用的代码记为原语（应丢弃）。
+- 禁止：`standalone_severity` 设为 `high` 或 `critical`（原语只能 `none / low / medium`；构成 high 的应直接成为 finding）。
+- 禁止：`location.line` 凭猜测填写；无法确认时填 `0` 并将 `confidence` 设为 `suspected`。
+- 禁止：`evidence` 字段编造代码片段；必须粘贴 Read 输出。
+- 禁止：在本 skill 内直接推导原语组合攻击链（属于 `audit-composer-agent` 的 Phase 5 职责）。
 
 ## 角色
 
-本 skill 定义了原语（Primitive）的识别标准和标准化消息格式，供 `audit-sink-agent` 和 `audit-control-agent` 在 Phase 2 审计中并行发射原语记录。**原语不是漏洞，是"不完整的攻击能力片段"**。单独不危险，但多个原语组合后可产生高危攻击路径。
+本 skill 定义原语（Primitive）的识别标准与标准化消息格式，供 `audit-sink-agent` 和 `audit-control-agent` 在 Phase 2 并行发射原语记录。**原语 = 不完整的攻击能力片段**：单独不危险，但与其他原语组合后可产生高危攻击路径。
 
 ## 什么是原语
 
-原语是代码中发现的、攻击者可利用但单独不足以构成漏洞的**能力片段**。判断标准：
+| 是否原语 | 判断 |
+|---------|------|
+| ✅ 是 | 能做某件事，但有约束（路径限制、需认证、只能部分控制） |
+| ✅ 是 | 本身无危害，但与其他能力组合后危害放大 |
+| ❌ 不是 | 已构成完整漏洞（记为 finding） |
+| ❌ 不是 | 完全不可利用 → 丢弃 |
 
-- **是原语**：能做某件事，但有约束（路径限制、需认证、只能部分控制）
-- **是原语**：本身无危害，但与其他能力组合后危害放大
-- **不是原语**：已经构成完整漏洞的（记为 finding，不记为原语）
-- **不是原语**：完全不可利用的代码（丢弃）
+**示例：**
 
-**示例判断：**
 - `Files.write("/tmp/" + userFilename)` → 原语（constrained_write，路径被约束）
 - `Runtime.exec(cmd)` 且 cmd 来自用户输入且无过滤 → 漏洞，不是原语
-- `HTTP 请求 url 参数可控但只能访问 http://` → 原语（constrained_ssrf）
+- HTTP url 参数可控但只能访问 `http://` → 原语（constrained_ssrf）
 
 ## capability 枚举（必须使用以下值）
 
@@ -38,7 +48,7 @@ CONTROL  → race_condition / state_manipulation / logic_bypass
 
 ## 标准消息格式（audit-primitive/v1）
 
-每条原语写入 `audit/phase2/primitives_batch{N}.md`，使用以下格式：
+每条原语写入 `audit/phase2/primitives_batch{N}.md`：
 
 ````markdown
 ### prim-NNN
@@ -96,11 +106,11 @@ CONTROL  → race_condition / state_manipulation / logic_bypass
 
 ## 反幻觉规则（同漏洞发现）
 
-- `location.file` 必须通过 Glob/Read 验证文件实际存在
-- `location.line` 必须来自 Read 输出，无法确认时填 `0` 并将 confidence 设为 suspected
-- `evidence` 字段直接粘贴 Read 输出的代码片段
+- `location.file` 必须通过 Glob/Read 验证文件实际存在。
+- `location.line` 必须来自 Read 输出，无法确认时填 `0` 并将 `confidence` 设为 `suspected`。
+- `evidence` 字段直接粘贴 Read 输出的代码片段。
 
 ## 输出位置
 
-- **同批次文件**：`audit/phase2/primitives_batch{N}.md`（与 findings_batch{N}.md 并列）
-- **此批次无原语时**：仍须创建空文件，写入 `> 本批次未发现原语。` 以避免 composer-agent 报告文件缺失
+- **同批次文件**：`audit/phase2/primitives_batch{N}.md`（与 `findings_batch{N}.md` 并列）
+- **此批次无原语时**：仍须创建空文件并写入 `> 本批次未发现原语。`（避免 composer-agent 报告文件缺失）

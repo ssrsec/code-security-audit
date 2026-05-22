@@ -1,17 +1,29 @@
 ---
 name: audit-report
-description: 阶段 6 最终报告生成。由 audit-orchestrator 在 Phase 4+5 全部完成后调度，将已验证漏洞（validated_findings.md）、组合漏洞（composite_findings.md）和原语组合攻击链（primitive_chains.md）合并为唯一交付报告 audit/security_audit_report.md。严格按 5 章节格式输出，包含 4.2 原语组合攻击链章节。完成后执行过程文件归档或清理。
+description: 阶段 6 最终报告生成。合并 phase4/validated_findings.md + phase5/composite_findings.md + phase5/primitive_chains.md 为唯一交付报告 audit/security_audit_report.md。不负责单漏洞验证（→ audit-validate）、不负责漏洞组合分析（→ audit-composite）、不负责原语组合（→ audit-composer-agent）。当 audit-orchestrator 完成 Phase 4+5 全部轨道后触发。
 ---
 
-# 审计报告生成（阶段 6）
+# 阶段 6 最终报告生成
+
+## Banned Patterns（零容忍 — 出现即退回）
+
+- 禁止：报告中追加第六章节或免责声明、附录、额外说明（报告以第五章节结束）。
+- 禁止：将 `validated_findings.md` 中的「待验证」漏洞丢弃、降级为"说明段落"、或以"未单列 vul"方式回避。
+- 禁止：漏洞详情中出现 `REPLACE_XXX / <!-- 此处替换为 --> / 此处从略 / <root/>` 等任何占位（参考 `audit-validate` 的反占位符规则）。
+- 禁止：复现步骤、实战利用、修复建议三个章节缺一不可；缺任一字段的漏洞退回阶段 4。
+- 禁止：报告中链接到中间文件让读者跳转；所有关键复现细节必须**完整内联**到正文。
+- 禁止：CVSS 评分使用"约"或缺失向量字符串。
+- 禁止：调用链超链接的 `href` 中包含 `#L行号`（IDE 跳转会失败）。
+- 禁止：在前置环节未彻底验证完时提前输出报告。
+- 禁止：完成后追加任何流程外选项（如"是否要靶机测试"、"是否需要英文版"）。
 
 ## 角色
 
-负责阶段 6：将 `audit/phase4/validated_findings.md` 和 `audit/phase5/composite_findings.md` 及 `audit/phase5/primitive_chains.md` 合并为**唯一交付报告** `audit/security_audit_report.md`。报告全文使用简体中文。
+将 `audit/phase4/validated_findings.md`、`audit/phase5/composite_findings.md`、`audit/phase5/primitive_chains.md` 合并为**唯一交付报告** `audit/security_audit_report.md`。全文使用简体中文。
 
 ## 报告结构
 
-`shared/report_fields.md` 是报告字段、章节、漏洞准入、实战利用和反占位符规则的单一事实来源。生成报告时：
+`shared/report_fields.md` 是报告字段、章节、漏洞准入、实战利用和反占位符规则的**单一事实来源**。
 
 1. 读取 `shared/report_fields.md` 和 `resources/report_template.md`。
 2. 严格输出五个顶级章节，顺序和名称不得改变：
@@ -20,18 +32,18 @@ description: 阶段 6 最终报告生成。由 audit-orchestrator 在 Phase 4+5 
    - 三、漏洞详情
    - 四、组合漏洞摘要
    - 五、总体安全建议
-3. 每条漏洞必须完整内联复现步骤、实战利用和修复建议，不得用中间文件链接替代正文。
+3. 每条漏洞**完整内联**复现步骤、实战利用和修复建议，不得用中间文件链接替代正文。
 4. 已确认与待验证漏洞都按 `shared/report_fields.md` 的 A/B 类准入标准处理，不得丢弃代码层面高度确认的待验证漏洞。
-5. 报告以第五章节结束，不得追加免责声明、附录或额外说明。
 
 ### 一、项目代码审计总结
 
 必须包含：
-- 覆盖率：已审 X / 应审 Y = 100%
-- 审计目标、开始时间（读取 `audit/phase0/metrics.md` 中记录的阶段 0 开始时间）、结束时间（必须此时执行 Bash `date "+%Y.%m.%d %H:%M:%S"` 命令获取真实的报告生成时间，严禁编造假数据）
+
+- 覆盖率：`已审 X / 应审 Y = 100%`
+- 审计目标、开始时间（读 `audit/phase0/metrics.md`）、结束时间（**必须此时**执行 `Bash date "+%Y.%m.%d %H:%M:%S"` 获取真实时间，严禁编造）
 - 项目技术栈
 - 审计发现总结：
-  - 各等级漏洞数量（严重/高危/中危/低危各多少）
+  - 各等级漏洞数量（严重/高危/中危/低危）
   - 组合漏洞数量
   - 漏洞类型分布
   - 触发条件统计（无需认证 X 个、普通用户认证 X 个、管理员认证 X 个等）
@@ -43,21 +55,20 @@ description: 阶段 6 最终报告生成。由 audit-orchestrator 在 Phase 4+5 
 
 ### 三、漏洞详情
 
-每条漏洞**完整内联**，包含全部必填字段：
-- 漏洞详情信息必须使用 Markdown 表格展现（包括：漏洞编号、漏洞名称、漏洞描述、漏洞等级、验证状态、CVSS评分（完整向量字符串，禁止"约"）、前置条件（全报告术语统一）、访问权限、调用链（href 中不加 `#L行号`））
-- 验证状态为「待验证」的漏洞，表格中**必须增加「待验证内容」行**，逐条列出需运行时验证的具体事项
-- **每条漏洞必须包含以下三个独立章节**，缺一不可：
-  - 【复现步骤】（已确认漏洞：完整数据包；待验证漏洞：最佳努力 payload + 标注需运行时调整的部分）
-  - 【实战利用】（已确认：至少 2 个含完整 payload 的场景；待验证：至少 2 个假设验证通过后的场景，可标注条件假设）
-  - 【修复建议】（具体文件、代码示例、修复原理）
+每条漏洞**完整内联**全部必填字段：
 
-**⚠️ 已确认与待验证漏洞同等重要**：`validated_findings.md` 中的「待验证」漏洞**必须**写入最终报告，不得丢弃、降级为"说明段落"、或以"未单列 vul"的方式回避。
+- **元信息表格**（Markdown 表）：漏洞编号、漏洞名称、漏洞描述、漏洞等级、验证状态、CVSS 完整向量（禁止"约"）、前置条件（全报告术语统一）、访问权限、调用链（href 中**不加** `#L行号`）
+- 「待验证」漏洞必须增加「待验证内容」行
+- **三个独立章节**（缺一即退回）：
+  - 【复现步骤】 已确认：完整数据包；待验证：最佳努力 payload + 标注需运行时调整的部分
+  - 【实战利用】 已确认：至少 2 个含完整 payload 的场景；待验证：至少 2 个假设验证通过后的场景，可标注条件假设
+  - 【修复建议】 具体文件 + 代码示例 + 修复原理
 
 ### 四、组合漏洞摘要
 
 #### 4.1 漏洞组合攻击链（基于已确认漏洞）
 
-来源：`audit/phase5/composite_findings.md`
+来源：`audit/phase5/composite_findings.md`（`audit-composite` 产出）
 
 ##### 【组合漏洞汇总表】
 
@@ -67,54 +78,49 @@ description: 阶段 6 最终报告生成。由 audit-orchestrator 在 Phase 4+5 
 ##### 【组合漏洞详情】
 
 每条包含：
+
 - 组合（漏洞编号 + 名称的组合）
 - 漏洞等级（组合后）及判定依据
-- 攻击链（先通过漏洞 xxx 实现/拿到 xxx，然后再利用漏洞 xxx 完成 xxx）
+- 攻击链（先通过漏洞 xxx 拿到 xxx，再利用漏洞 xxx 完成 xxx）
 
-若无组合漏洞则写：`> 经分析，未发现可组合利用的漏洞链。`
+若无组合漏洞写：`> 经分析，未发现可组合利用的漏洞链。`
 
 #### 4.2 原语组合攻击链（基于能力片段推导）
 
-来源：`audit/phase5/primitive_chains.md`（audit-composer-agent 产出）
-
-**写入规则：**
-
-遍历 primitive_chains.md 中所有 chain 条目，按格式写入：
+来源：`audit/phase5/primitive_chains.md`（`audit-composer-agent` 产出）
 
 | 编号 | 攻击链名称 | 参与原语 | 推导等级 | 置信度 |
 |------|-----------|---------|---------|--------|
 | chain-001 | 受限写+Cron劫持→RCE | prim-001+prim-007 | 高危 | ✓ 已确认 |
 | chain-002 | SSRF+云凭证→密钥窃取 | prim-003+prim-011 | 高危 | ⚠ 待验证 |
 
-- `suspected` 链必须进入报告，不得丢弃，用 `⚠ 待验证` 标注
-- `confirmed` 链用 `✓ 已确认` 标注
-- 无命中时写：`> 经原语组合分析，未发现可组合的原语攻击链。`
+- `suspected` 链必须进入报告（标 `⚠ 待验证`）
+- `confirmed` 链标 `✓ 已确认`
+- 无命中写：`> 经原语组合分析，未发现可组合的原语攻击链。`
 
 ### 五、总体安全建议
 
 从以下维度给出总体性安全改进建议：
-- 架构层面的安全加固建议
-- 开发流程中的安全改进建议
-- 针对高频漏洞类型的统一修复方案
-- 安全运维相关建议（如依赖更新策略等）
 
-## 完成度校验
+- 架构层面的安全加固
+- 开发流程中的安全改进
+- 高频漏洞类型的统一修复方案
+- 安全运维相关建议（如依赖更新策略）
 
-报告生成前必须确认：
+## 完成度校验（生成前必查）
 
-- 覆盖率必须已达 100%。
-- `validated_findings.md` 中的漏洞验证和 `composite_findings.md` 的组合分析必须彻底完成。
-- 每条漏洞包含全部必填字段（缺少字段的退回阶段 4 补充）。
-- 触发条件不成立的不列入报告。
-- 必须读取 `audit/phase3/false_positive_notes.md` 和阶段 2 批次产物。若最终报告没有某个 OWASP Top 10 适用域 finding，但阶段 1/2 存在该域线索，必须能看到对应域的排除证据或待补审记录。
-- 禁止因为报告篇幅、上下文压力或"已有其他漏洞"而省略任一 OWASP Top 10 适用域的结论。
+- 覆盖率已达 100%
+- `validated_findings.md` 漏洞验证 + `composite_findings.md` 组合分析彻底完成
+- 每条漏洞含全部必填字段（缺字段退回阶段 4 补充）
+- 触发条件不成立的不列入报告
+- 必须读 `audit/phase3/false_positive_notes.md` 和阶段 2 批次产物；若报告没有某个 OWASP Top 10 适用域 finding 但阶段 1/2 存在该域线索，必须能看到对应域的排除证据或待补审记录
+- 禁止因报告篇幅、上下文压力或"已有其他漏洞"省略任一 OWASP Top 10 适用域的结论
 
-**漏洞准入最终检查（按 shared/report_fields.md 中的 A/B 类标准执行）**：
-- **已确认漏洞**：复现步骤无违规占位符、实战利用至少 2 个含 payload 的场景、反序列化给具体 gadget 链、注入给具体语句 → 全部通过方可写入，否则退回
-- **待验证漏洞**：必须有「待验证内容」字段、最佳努力 payload、假设验证通过后的利用场景 → 格式完整即可写入
-- **通用**：CVSS 完整向量、调用链每跳有文件:行号、修复建议指明具体文件
+**漏洞准入最终检查**（按 `shared/report_fields.md` 的 A/B 类标准）：
 
-**严格纪律：严禁跳步。** 绝不允许在前面环节未彻底验证完的情况下提前输出报告。必须在接到明确进入阶段 6 的信号（即阶段 4 和组合分析均已彻底落盘完成）后，才开始输出此报告。
+- **已确认**：复现步骤无违规占位、实战利用 ≥2 个含 payload 的场景、反序列化给具体 gadget 链、注入给具体语句 → 全通过方可写入
+- **待验证**：必须有「待验证内容」字段、最佳努力 payload、假设验证通过后的利用场景 → 格式完整即可写入
+- **通用**：CVSS 完整向量、调用链每跳有 `file:line`、修复建议指明具体文件
 
 ## 反幻觉
 
@@ -128,18 +134,26 @@ description: 阶段 6 最终报告生成。由 audit-orchestrator 在 Phase 4+5 
 
 ## 过程文件归档纪律
 
-在确保最终报告 `audit/security_audit_report.md` 已经完全写入磁盘并确认无误之后：
+最终报告 `audit/security_audit_report.md` 完全写入磁盘并确认无误后：
 
-**默认行为（保留归档）**：
+**默认（保留归档）**：
+
 - 默认保留 `audit/phase0` 到 `audit/phase5`、`audit/poc` 和 `audit/state.json`，用于证据追溯、复核和断点恢复。
-- 如需交付精简包，可将过程文件复制或移动到 `audit/.archive/<timestamp>/`，并保留 hash、时间、执行命令、证据脱敏说明。
+- 如需精简交付包，可将过程文件复制或移动到 `audit/.archive/<timestamp>/`，并保留 hash、时间、执行命令、证据脱敏说明。
 
 **用户明确要求精简包时**：
-- 可执行 `rm -rf audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5`，彻底清理中间过程文件。
-- 删除前必须再次确认目标路径，不得使用模糊通配或扩大范围。
 
-**无论哪种方式，以下目录严禁删除**：
-- **`audit/decompiled`**：反编译输出目录是审计的源代码基础，不是中间文件。
-- **`audit/phase4`**：包含已验证 findings，是最终报告的核心证据来源。
+- 可执行 `rm -rf audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5`，删除前必须再次确认目标路径，不得模糊通配或扩大范围。
 
-报告生成并清理完成后，按交付约定输出完成通知。
+**严禁删除（无论何种交付）**：
+
+- `audit/decompiled`：反编译输出目录是审计的源代码基础
+- `audit/phase4`：已验证 findings 是最终报告的核心证据来源
+
+## 结束纪律
+
+报告生成并归档完成后，AI 的最后一句回答**有且仅有一句固定的话**：
+
+> 「代码安全审计流程已全部完成，最终报告已生成至 audit/security_audit_report.md，中间过程文件已保留（如需精简交付包，请告知）。」
+
+**绝对禁止提出流程外选择**。
