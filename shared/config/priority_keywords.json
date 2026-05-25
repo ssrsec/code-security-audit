@@ -1,0 +1,17 @@
+{
+  "p0": [
+    "security", "gateway", "filter", "interceptor", "auth", "oauth", "sso", "login", "signin", "logout", "session", "token", "cookie", "jwt", "password", "credential", "permit", "anonymous", "public",
+    "callback", "webhook", "notify", "openapi", "actuator", "druid", "swagger", "health", "debug", "trace",
+    "file", "upload", "download", "export", "import", "path", "stream", "read", "write",
+    "cors", "deserialize", "serialize", "decrypt", "encrypt", "cipher", "hash", "sign", "verify",
+    "exec", "runtime", "process", "command", "shell", "sql", "query", "jndi", "ldap",
+    "log", "audit", "trace"
+  ],
+  "p1": [
+    "controller", "route", "router", "handler", "endpoint", "api", "rest", "service", "action", "resource",
+    "user", "account", "profile", "order", "payment", "trade", "transaction", "admin"
+  ],
+  "p2": [
+    "admin", "system", "management", "config", "setting", "internal", "backoffice", "dashboard"
+  ]
+}

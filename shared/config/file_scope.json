@@ -1,0 +1,24 @@
+{
+  "include_extensions": [
+    ".java", ".kt", ".kts", ".go", ".py", ".pyi", ".pyw", ".js", ".ts", ".tsx", ".mjs", ".cjs",
+    ".php", ".phtml", ".cs", ".cshtml", ".razor", ".rb", ".erb", ".rs", ".swift", ".m", ".mm",
+    ".c", ".cc", ".cpp", ".h", ".hpp", ".scala", ".clj", ".cljs",
+    ".xml", ".yml", ".yaml", ".properties", ".conf", ".ini", ".toml", ".env", ".env.",
+    ".json", ".proto", ".graphql", ".gql", ".sql", ".sh", ".bash", ".ps1", ".bat", ".cmd",
+    ".jsp", ".jspx", ".ftl", ".vm", ".html", ".htm", ".vue", ".svelte"
+  ],
+  "exclude_dirs": [
+    ".git", ".idea", ".vscode", ".vs", ".eclipse", ".settings",
+    "node_modules", "vendor", "bower_components", "jspm_packages",
+    "target", "build", "dist", "out", "bin", "obj", "output",
+    ".gradle", ".mvn", "gradle", "mvn-wrapper",
+    "__pycache__", ".pytest_cache", ".tox", ".mypy_cache", ".ruff_cache",
+    "site-packages", ".venv", "venv", "env", ".env", "virtualenv",
+    "coverage", ".nyc_output", ".coverage", "htmlcov", "lcov-report",
+    ".next", ".nuxt", ".cache", ".parcel-cache", ".turbo",
+    ".terraform", "terraform.tfstate.d", ".serverless",
+    "tmp", "temp", "logs", ".log", "cache", ".cache",
+    "generated", "generated-sources", "build-generated", ".generated"
+  ],
+  "include_extensions_by_language": {}
+}
