@@ -28,8 +28,9 @@
 - 统计 LOC、文件数、模块数、入口数量、主要语言和构建系统。
 - **编译产物扫描（必须执行）**：使用 `find` 或 `Glob` 实际扫描项目目录，确认是否存在 `.class`、`.jar`、`.war`、`.dll` 等编译产物。**严禁凭猜测声称"不存在"**。
 - 若发现编译产物且缺少对应源码，按 `shared/decompilation.md` 执行反编译。反编译输出视为审计源码继续进入阶段 1。
-  - Java 产物（.class/.jar/.war）→ 使用 cfr/procyon/fernflower CLI 反编译；`classes/` 目录全量反编译，`lib/` 目录按业务包名筛选反编译
-  - ASP.NET DLL → 使用 ilspycmd CLI 反编译
+  - Java 产物（.class/.jar/.war）→ `decompilers/bin/decompile-java.{sh,cmd}`（自动 ensure + CFR）；`classes/` 全量，`lib/` 按业务包名筛选
+  - ASP.NET DLL → `decompilers/bin/decompile-dotnet.{sh,cmd}`（自动 ensure + ilspycmd）
+  - Level 1 失败时**须经用户同意**方可降级（见 `shared/decompilation.md` §2.3）
   - 反编译失败时按 `shared/decompilation.md` 三级降级策略处理，严禁跳过
 - 明确审计形态：`source_only`、`compiled_only`、`both`。无法判断时询问用户。
 

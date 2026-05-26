@@ -111,8 +111,9 @@ audit-orchestrator（总编排控制器）
 | **ysoserial.net** | `scripts/tools/yso-net/` | .NET 反序列化 payload 生成器（目标 .NET Framework 4.x，需 Windows 运行） |
 | **ysoserial.net (fw2)** | `scripts/tools/yso-net-v2/` | .NET 反序列化 payload 生成器（目标 .NET Framework 2.0，需 Windows 运行） |
 | **payload 模板** | `scripts/tools/payload_templates/` | 9 个漏洞类型的 payload 知识库 + 常见框架快速验证模板（RuoYi/Spring Boot/MyBatis/.NET） |
+| **反编译** | `scripts/tools/decompilers/` | CFR 内置；ilspycmd 按平台自动安装；脚本自动检测 `java`/`dotnet` |
 
-详细用法见 `scripts/tools/exploit_tools.md`。
+详细用法见 `scripts/tools/exploit_tools.md` 与 `scripts/tools/decompilers/README.md`。
 
 > 当前环境无法运行的工具（如 macOS 上的 ysoserial.net），AI 会向用户求助并提供完整命令，由用户在对应环境执行后返回结果。
 
@@ -143,9 +144,9 @@ claude --plugin-dir /path/to/code-security-audit
 
 ### 首次使用前
 
-1. 从 [java-chains Releases](https://github.com/vulhub/java-chains/releases) 下载 CLI 版本的 JAR，放到 `scripts/tools/javachains/cli-chains.jar`
-2. 确保 Java 运行时已安装（`java -version`）
-3. 如需验证 .NET 反序列化漏洞，确保有 Windows 环境可运行 ysoserial.net
+1. **反编译**：CFR 已内置；执行 `scripts/tools/decompilers/bin/decompile-*` 时会自动检测本机环境并安装缺失的 `java` / `dotnet` / ilspycmd（依赖系统包管理器：`brew`、`winget`、`apt` 等）。详见 `scripts/tools/decompilers/README.md`。
+2. **javachains**（可选）：从 [java-chains Releases](https://github.com/vulhub/java-chains/releases) 下载 `cli-chains.jar` 放到 `scripts/tools/javachains/`（Phase 4 反序列化验证）。
+3. **ysoserial.net**（可选）：.NET 反序列化验证需在 Windows 环境运行 `scripts/tools/yso-net/`。
 
 ## 目录结构
 
@@ -197,6 +198,10 @@ code-security-audit/
 │       │   └── chains-config/          # 第三方 gadget 依赖库（已随仓库提供）
 │       ├── yso-net/                    # ysoserial.net（.NET Framework 4.x）
 │       ├── yso-net-v2/                 # ysoserial.net（.NET Framework 2.0）
+│       ├── decompilers/                # 内置反编译（CFR + ilspycmd）
+│       │   ├── java/cfr-0.152.jar
+│       │   ├── setup.sh / setup.ps1    # .NET 首次安装
+│       │   └── bin/decompile-*.{sh,cmd}
 │       └── payload_templates/          # payload 知识库
 │           ├── java_deser_chains.md    # Java 反序列化链
 │           ├── fastjson_payloads.md    # Fastjson payload

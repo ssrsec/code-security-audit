@@ -413,8 +413,8 @@ PoC 通用要求：
 |------|------|------|
 | Java 反序列化验证 | javachains（生成 gadget 链 payload） | Java（当前环境可用） |
 | .NET 反序列化验证 | ysoserial.net（4.x）/ ysoserial_frmv2（2.0） | Windows（当前环境不可用时向用户求助） |
-| Java 反编译 | cfr / procyon / fernflower（CLI） | Java |
-| .NET 反编译 | ilspycmd（CLI） | 需 .NET SDK |
+| Java 反编译 | `decompilers/bin/decompile-java.{sh,cmd}` | 自动 ensure（`java`） |
+| .NET 反编译 | `decompilers/bin/decompile-dotnet.{sh,cmd}` | 自动 ensure（`dotnet` + ilspycmd） |
 
 **跨平台工具处理**：当前环境（macOS）无法运行的工具，提供完整命令让用户在对应环境执行并将结果返回。详见 `scripts/tools/exploit_tools.md` 的「求助模板」。
 

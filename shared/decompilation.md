@@ -26,7 +26,20 @@
 
 ### 2.1 Java 编译产物（JAR/WAR/CLASS）
 
-使用 cfr / procyon / fernflower CLI 工具进行反编译。
+**优先使用仓库内置 CFR**（随 skills 分发，跨平台）：
+
+**macOS / Linux：**
+```bash
+SKILL_ROOT="<本仓库根目录>"
+bash "$SKILL_ROOT/scripts/tools/decompilers/bin/decompile-java.sh" <target.jar|target.class> audit/decompiled/
+```
+
+**Windows：**
+```cmd
+"%SKILL_ROOT%\scripts\tools\decompilers\bin\decompile-java.cmd" <target.jar> audit\decompiled
+```
+
+详见 `scripts/tools/decompilers/README.md`。内置 JAR：`scripts/tools/decompilers/java/cfr-0.152.jar`。**仅需本机已安装 `java`。**
 
 **⚠️ 绝对禁止的行为**：
 - 擅自通过 Bash 下载或安装反编译工具（如 `curl -O cfr.jar`、`pip install`、`brew install` 等），这属于越权操作
@@ -72,7 +85,19 @@
 
 ### 2.2 ASP.NET 编译产物（DLL）
 
-使用 ilspycmd CLI 工具进行反编译。
+**优先使用仓库内置 ilspycmd**（调用脚本时自动检测环境并安装，见 `scripts/tools/decompilers/README.md`）：
+
+**macOS / Linux：**
+```bash
+bash "$SKILL_ROOT/scripts/tools/decompilers/bin/decompile-dotnet.sh" <target.dll> audit/decompiled/
+```
+
+**Windows：**
+```cmd
+"%SKILL_ROOT%\scripts\tools\decompilers\bin\decompile-dotnet.cmd" <target.dll> audit\decompiled
+```
+
+脚本会自动安装 `dotnet` / ilspycmd（若本机包管理器可用）。无法自动安装时须向用户说明，**不得未经同意降级**。
 
 **部署目录结构识别（必须先执行）**：
 
@@ -147,29 +172,28 @@ ASP.NET 部署中 DLL 通常集中在同一目录（`bin/` 或发布根目录）
 
 **反编译失败绝对不能跳过**。必须按以下顺序逐级尝试：
 
-#### Level 1：CLI 工具（首选）
+#### Level 1：内置 CLI（首选）
 
-使用本地命令行反编译工具：
+**必须先尝试仓库内置脚本**（`scripts/tools/decompilers/bin/`，见 `scripts/tools/decompilers/README.md`）：
 
-| 语言 | 工具 | 检测命令 | 反编译命令 |
-|------|------|----------|-----------|
-| Java | cfr | `which cfr` 或 `ls cfr*.jar` | `java -jar cfr.jar target.class --outputdir out/` |
-| Java | procyon | `ls procyon*.jar` | `java -jar procyon.jar -o out/ target.jar` |
-| Java | fernflower | `ls fernflower*.jar` | `java -jar fernflower.jar target.jar out/` |
-| Java | jadx | `which jadx` | `jadx -d out/ target.jar` |
-| .NET | ilspycmd | `which ilspycmd` 或 `dotnet tool list -g` | `ilspycmd target.dll -p -o out/` |
-| Native | ghidra | `which analyzeHeadless` | `analyzeHeadless /tmp/proj proj -import target -postScript ExportDecompiled.py` |
-| Native | r2/rizin | `which r2` | `r2 -q -c 'aaa;pdd' target` |
+| 语言 | 入口（按 OS 选择） | 前置条件 |
+|------|-------------------|---------|
+| Java | `decompile-java.sh`（macOS/Linux）或 `decompile-java.cmd`（Windows） | 本机 `java` |
+| .NET | `decompile-dotnet.sh`（macOS/Linux）或 `decompile-dotnet.cmd`（Windows） | 本机 `dotnet` + 首次运行 `setup.sh` / `setup.ps1` |
 
 执行逻辑：
-1. 按表中顺序检测哪个工具可用（`which` 或 `ls`）
-2. 找到第一个可用工具即执行
-3. 输出写入 `audit/decompiled/` 目录
-4. 反编译单文件失败 → 记录该文件跳过原因，继续处理其余文件
+1. 根据 OS 调用 `scripts/tools/decompilers/bin/` 下对应入口；脚本会自动检测环境并安装缺失依赖（见 `scripts/tools/decompilers/README.md`）
+2. 输出写入 `audit/decompiled/`
+3. 单文件失败 → 记录原因，继续处理其余文件
+4. **Level 1 整体失败时不得自行降级**（见下）
 
-#### Level 2：在线反编译服务或请求用户协助（CLI 失败时）
+**⚠️ 降级须用户明确同意**：Level 1 内置流程失败（含自动安装后仍失败）时，AI **必须暂停并向用户说明**失败原因与拟采用的备选方案，**仅在用户明确回复同意后方可**进入 Level 2 或 Level 3。禁止静默改用 jadx、PATH 中其他工具、在线反编译或字节码分析。
 
-Level 1 所有 CLI 工具都不可用或执行失败时：
+#### Level 2：用户同意后的协助方案
+
+**前置条件：用户已明确同意降级。**
+
+Level 1 不可用或执行失败时：
 1. 告知用户当前环境缺少反编译工具，提供安装建议
 2. 或请求用户在其他环境反编译后提供结果
 3. 格式：
@@ -181,9 +205,11 @@ Level 1 所有 CLI 工具都不可用或执行失败时：
    然后发送「继续审计」
    ```
 
-#### Level 3：字节码/IL 直接分析（最终降级）
+#### Level 3：字节码/IL 直接分析
 
-Level 1 和 Level 2 都无法完成时：
+**前置条件：用户已明确同意进入 Level 3（通常是在 Level 2 仍无法完成时）。**
+
+Level 2 仍无法完成时：
 1. 将失败文件列表写入 `audit/phase0/decompile_blocked.md`
 2. 这些文件**仍计入覆盖率分母**，状态标为 `skipped-decompile-failed`
 3. 在最终报告的「审计局限性」章节中明确列出
