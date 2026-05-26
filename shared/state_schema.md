@@ -21,7 +21,7 @@
   "artifacts": {
     "inScopeFiles": "audit/phase1/in_scope_files.txt",
     "reviewedPaths": "audit/phase2/reviewed_paths_merged.txt",
-    "candidateFindings": "audit/phase2/candidate_findings.json",
+    "candidateFindings": "audit/phase3/candidate_findings.json",
     "validatedFindings": "audit/phase4/validated_findings.md"
   },
   "unresolvedQuestions": [],

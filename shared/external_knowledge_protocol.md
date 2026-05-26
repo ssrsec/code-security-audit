@@ -1,4 +1,4 @@
-# 外部知识获取协议（联网搜索 + 文档 MCP）
+# 外部知识获取协议（联网搜索）
 
 > **何时必读**：遇到陌生框架、新 CVE、最新 gadget 链、非主流语言/库时；模型对 sink 是否危险/版本是否受影响无法独立判定时。
 > **何时不需要读**：审计目标全部是已知主流框架（Spring/Express/Django/Laravel/.NET），且 `shared/sink_catalog_by_lang.md` 已覆盖相关 sink 时。
@@ -11,10 +11,9 @@
 
 | 优先级 | 工具 | 用途 | 何时用 |
 |--------|------|------|--------|
-| P1 | `Context7 MCP`（如可用） | 框架 / SDK / API 官方文档与最新代码示例 | 框架特定 sink / 鉴权 API 语义不明 |
-| P2 | `WebSearch`（Cursor/Claude 内置）| CVE 详情、最新 gadget、社区分析文章 | 反序列化 / 模板注入 / 新发布 CVE |
-| P3 | `WebFetch` | 已知 URL（如 NVD 条目、官方 advisory）抓正文 | 已有 CVE-XXXX-XXXXX 编号 |
-| P4 | 模型预训练知识 | 主流 sink 与通用模式 | 已覆盖于 `sink_catalog_by_lang.md` 的内容 |
+| P1 | `WebSearch`（Cursor/Claude 内置）| CVE 详情、最新 gadget、社区分析文章、框架文档 | 反序列化 / 模板注入 / 新发布 CVE / 框架特定 sink |
+| P2 | `WebFetch` | 已知 URL（如 NVD 条目、官方 advisory）抓正文 | 已有 CVE-XXXX-XXXXX 编号 |
+| P3 | 模型预训练知识 | 主流 sink 与通用模式 | 已覆盖于 `sink_catalog_by_lang.md` 的内容 |
 
 **禁止**：直接编造"经典 gadget"或"通用 CVE 编号"。无外部佐证时一律标「待验证」。
 
@@ -56,7 +55,7 @@
 
 | 失败原因 | 降级处理 |
 |---------|----------|
-| 平台无 WebSearch / MCP 工具 | 标「待验证」+ "需人工查 CVE-XXXX 等 N 项"；不得编造 |
+| 平台无 WebSearch / WebFetch 工具 | 标「待验证」+ "需人工查 CVE-XXXX 等 N 项"；不得编造 |
 | 网络不可达 / 沙箱限制 | 同上；写入 `audit/state.json` "blockers" 字段 |
 | 搜索结果与项目场景不匹配 | 仍标「待验证」+ 写明"已查 N 个来源，未找到精确匹配项目场景的证据" |
 | 仅找到中文论坛二手描述 | 标「待验证」+ 注明"二手描述未找到原始 CVE"，不升级为「已确认」 |

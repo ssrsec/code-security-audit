@@ -22,27 +22,15 @@
 
 ---
 
-## 2. MCP 工具检测与调用（最高优先级）
-
-### 2.0 MCP 工具检测方法（必须先执行）
-
-**在尝试任何反编译操作之前，必须先确认 MCP 工具是否可用。**
-
-检测方式：**直接尝试调用 MCP 工具**。MCP 工具在环境中表现为可调用的工具函数，名称格式通常为 `mcp__服务名__方法名`（如 `mcp__java-decompiler__decompile`）。
-
-1. 查看当前可用的工具列表，搜索包含 `java-decompiler`、`ilspy` 等关键词的 MCP 工具
-2. 若找到，直接调用该 MCP 工具进行反编译
-3. **严禁在未确认 MCP 工具不存在的情况下，擅自通过 Bash 下载或安装反编译工具（如 `curl` 下载 CFR JAR）**。这属于越权操作。
-4. 只有在确认 MCP 工具确实不可用后，才按 2.4 节的降级策略处理
-
-**⚠️ 绝对禁止的行为**：
-- 未经检测就声称"未配置 MCP"
-- 绕过 MCP 自行下载/安装反编译工具（如 `curl -O cfr.jar`、`pip install`、`brew install` 等）
-- 跳过反编译直接审计 .class/.dll 的二进制
+## 2. 反编译工具使用
 
 ### 2.1 Java 编译产物（JAR/WAR/CLASS）
 
-使用 `java-decompiler` MCP 工具进行反编译。
+使用 cfr / procyon / fernflower CLI 工具进行反编译。
+
+**⚠️ 绝对禁止的行为**：
+- 擅自通过 Bash 下载或安装反编译工具（如 `curl -O cfr.jar`、`pip install`、`brew install` 等），这属于越权操作
+- 跳过反编译直接审计 .class/.dll 的二进制
 
 **解压预处理（必须自行完成）**：
 1. **WAR 包**：使用 `unzip` 或 `jar -xf` 自行解压，获取内部结构：
@@ -52,7 +40,7 @@
 2. **FAT JAR（Spring Boot 等）**：使用 `unzip` 解压，获取：
    - `BOOT-INF/classes/` — 项目代码
    - `BOOT-INF/lib/` — 第三方依赖 JAR
-3. **普通 JAR**：若为单个业务 JAR，直接调用 MCP 反编译
+3. **普通 JAR**：若为单个业务 JAR，直接使用 CLI 反编译
 4. **lib/ 目录**：若用户给定的是一个包含多个 JAR 的目录，按下方筛选规则处理
 
 **反编译范围判定规则（关键，必须严格遵守）**：
@@ -78,13 +66,13 @@
 - 所有 `lib/` 下的 JAR 文件名和版本必须记录到 `audit/phase1/dependency_list.json` 用于依赖分析
 
 **反编译执行**：
-1. 调用 `java-decompiler` MCP 工具对 `classes/` 全量 + `lib/` 中筛选出的业务 JAR 进行反编译
+1. 使用 CLI 工具（cfr/procyon/fernflower）对 `classes/` 全量 + `lib/` 中筛选出的业务 JAR 进行反编译
 2. 反编译输出目录记录到 `audit/phase0/metrics.md` 中的 `反编译输出路径` 字段
 3. WAR/JAR 中的 XML 配置文件（如 MyBatis Mapper XML、Spring XML、web.xml）直接复制使用，无需反编译
 
 ### 2.2 ASP.NET 编译产物（DLL）
 
-使用 `ilspy-mcp` MCP 工具进行反编译。
+使用 ilspycmd CLI 工具进行反编译。
 
 **部署目录结构识别（必须先执行）**：
 
@@ -150,34 +138,25 @@ ASP.NET 部署中 DLL 通常集中在同一目录（`bin/` 或发布根目录）
 - 文件大小通常远小于第三方大型 DLL（如 `Microsoft.AspNetCore.*.dll`）
 
 **反编译执行**：
-1. 对筛选出的所有业务程序集调用 `ilspy-mcp` MCP 工具反编译为 `.cs` 文件
+1. 对筛选出的所有业务程序集使用 `ilspycmd` CLI 工具反编译为 `.cs` 文件
 2. 反编译输出目录记录到 `audit/phase0/metrics.md`
 3. 非 DLL 文件（`.cshtml`/`.aspx`/`.config`/`.json` 等）直接复制到审计范围，无需反编译
 4. 所有 DLL 文件名和版本记录到 `audit/phase1/dependency_list.json`
 
-### 2.3 MCP 工具调用说明
-
-- **Java 反编译**：使用环境中已配置的 `java-decompiler` MCP 服务（基于 CFR 反编译器）
-- **ASP.NET 反编译**：使用环境中已配置的 `ilspy-mcp` MCP 服务（基于 ILSpy）
-- MCP 工具以函数调用方式使用，调用前先确认工具名称（通常为 `mcp__java-decompiler__xxx` 或 `mcp__ilspy-mcp__xxx` 格式）
-
-### 2.4 三级降级策略（MCP 失败时绝不放弃）
+### 2.3 三级降级策略（反编译失败时绝不放弃）
 
 **反编译失败绝对不能跳过**。必须按以下顺序逐级尝试：
 
-#### Level 1：MCP 工具（首选）
+#### Level 1：CLI 工具（首选）
 
-使用环境中的 MCP 反编译服务（java-decompiler / ilspy-mcp / ida-pro-mcp）。MCP 返回结构化信息（类型推断、继承关系、注解保留），对 AI 分析最友好。
-
-#### Level 2：本地 CLI 工具（MCP 失败时自动尝试）
-
-MCP 调用失败（超时、返回错误、服务不可用）时，**立即**尝试本地命令行工具：
+使用本地命令行反编译工具：
 
 | 语言 | 工具 | 检测命令 | 反编译命令 |
 |------|------|----------|-----------|
 | Java | cfr | `which cfr` 或 `ls cfr*.jar` | `java -jar cfr.jar target.class --outputdir out/` |
-| Java | jadx | `which jadx` | `jadx -d out/ target.jar` |
 | Java | procyon | `ls procyon*.jar` | `java -jar procyon.jar -o out/ target.jar` |
+| Java | fernflower | `ls fernflower*.jar` | `java -jar fernflower.jar target.jar out/` |
+| Java | jadx | `which jadx` | `jadx -d out/ target.jar` |
 | .NET | ilspycmd | `which ilspycmd` 或 `dotnet tool list -g` | `ilspycmd target.dll -p -o out/` |
 | Native | ghidra | `which analyzeHeadless` | `analyzeHeadless /tmp/proj proj -import target -postScript ExportDecompiled.py` |
 | Native | r2/rizin | `which r2` | `r2 -q -c 'aaa;pdd' target` |
@@ -188,22 +167,30 @@ MCP 调用失败（超时、返回错误、服务不可用）时，**立即**尝
 3. 输出写入 `audit/decompiled/` 目录
 4. 反编译单文件失败 → 记录该文件跳过原因，继续处理其余文件
 
-#### Level 3：BLOCKED（所有工具都不可用）
+#### Level 2：在线反编译服务或请求用户协助（CLI 失败时）
 
-Level 1 和 Level 2 都失败时：
+Level 1 所有 CLI 工具都不可用或执行失败时：
+1. 告知用户当前环境缺少反编译工具，提供安装建议
+2. 或请求用户在其他环境反编译后提供结果
+3. 格式：
+   ```
+   当前环境无可用反编译工具，请协助处理：
+   - /path/to/target.jar
+   建议安装 jadx 后运行：jadx -d audit/decompiled/ /path/to/target.jar
+   或在线反编译后将结果放入 audit/decompiled/ 目录
+   然后发送「继续审计」
+   ```
+
+#### Level 3：字节码/IL 直接分析（最终降级）
+
+Level 1 和 Level 2 都无法完成时：
 1. 将失败文件列表写入 `audit/phase0/decompile_blocked.md`
 2. 这些文件**仍计入覆盖率分母**，状态标为 `skipped-decompile-failed`
 3. 在最终报告的「审计局限性」章节中明确列出
-4. 告知用户具体哪些文件需要手动反编译后提供，格式：
-   ```
-   以下文件反编译失败，需手动处理后重新审计：
-   - /path/to/target.jar（原因：MCP 超时 + 本地无 cfr/jadx）
-   请安装 jadx 后运行：jadx -d audit/decompiled/ /path/to/target.jar
-   然后发送「继续审计」
-   ```
+4. 尝试使用 `javap -c`（Java）或 `ildasm`（.NET）进行字节码/IL 级别的有限分析
 5. **绝对禁止**：跳过不审、假装审了、把这些文件从覆盖率分母中去掉
 
-### 2.5 按需补反编译（Phase 2 触发）
+### 2.4 按需补反编译（Phase 2 触发）
 
 Phase 2 数据流追踪时，如果追入了未反编译的第三方包：
 1. sink-agent 记录「需补反编译：xxx.jar 中的 com.lib.ClassName」
@@ -254,7 +241,7 @@ Phase 2 数据流追踪时，如果追入了未反编译的第三方包：
 ```
 审计形态：compiled_only（或 source_only / both）
 原始输入：/path/to/target.jar（或目录路径）
-反编译工具：java-decompiler MCP (CFR)（或 ilspy-mcp (ILSpy)）
+反编译工具：cfr/procyon/fernflower CLI（或 ilspycmd CLI）
 反编译输出路径：/path/to/decompiled/
 注意事项：反编译代码的变量名、行号与原始源码可能存在差异
 ```

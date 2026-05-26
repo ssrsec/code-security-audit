@@ -28,9 +28,9 @@
 - 统计 LOC、文件数、模块数、入口数量、主要语言和构建系统。
 - **编译产物扫描（必须执行）**：使用 `find` 或 `Glob` 实际扫描项目目录，确认是否存在 `.class`、`.jar`、`.war`、`.dll` 等编译产物。**严禁凭猜测声称"不存在"**。
 - 若发现编译产物且缺少对应源码，按 `shared/decompilation.md` 执行反编译。反编译输出视为审计源码继续进入阶段 1。
-  - Java 产物（.class/.jar/.war）→ 使用 `java-decompiler` MCP 工具反编译；`classes/` 目录全量反编译，`lib/` 目录按业务包名筛选反编译
-  - ASP.NET DLL → 使用 `ilspy-mcp` MCP 工具反编译
-  - MCP 工具不可用时按降级策略处理，严禁跳过
+  - Java 产物（.class/.jar/.war）→ 使用 cfr/procyon/fernflower CLI 反编译；`classes/` 目录全量反编译，`lib/` 目录按业务包名筛选反编译
+  - ASP.NET DLL → 使用 ilspycmd CLI 反编译
+  - 反编译失败时按 `shared/decompilation.md` 三级降级策略处理，严禁跳过
 - 明确审计形态：`source_only`、`compiled_only`、`both`。无法判断时询问用户。
 
 **输出**：
@@ -98,7 +98,6 @@
 - `audit/phase2/findings_batch{N}.md`（候选漏洞列表）
 - `audit/phase2/reviewed_paths_batch{N}.txt`（各批次审阅文件）
 - `audit/phase2/reviewed_paths_merged.txt`（合并审阅清单）
-- `audit/phase2/candidate_findings.json`（候选 finding 汇总）
 - `audit/phase2/primitives_batch{N}.md`（各批次原语能力片段）
 - `audit/phase2/callchain_batch{N}.md`（跨文件调用链，按批次写入，Phase 3 合并为 `callchain_tracker.md`）
 
@@ -133,6 +132,8 @@
 
 - `audit/phase2/coverage_status.json`（覆盖率状态）
 - 更新 `audit/phase1/coverage_matrix.md`
+- `audit/phase3/candidate_findings.json`（由 orchestrator 合并各批次 `findings_batch{N}.md` 生成的候选 finding 汇总）
+- `audit/phase3/callchain_tracker.md`（合并各批次 `callchain_batch{N}.md` 生成的完整调用链追踪）
 - `audit/phase3/false_positive_notes.md`（反向审查与误报说明）
 - `audit/phase3/cross_batch_traces.md`（跨批次数据流匹配报告，大项目适用）
 

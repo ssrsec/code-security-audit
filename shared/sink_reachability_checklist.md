@@ -21,7 +21,7 @@
 - **检查方式**：`Grep -n "sink_function\s*\("` 取得调用点 → `Read` 确认是实际调用而非定义
 - **通过**：至少 1 个调用点存在且不在测试/样例目录
 - **常见误判**：sink 仅在 unit test 中被调用 / sink 仅在 `@Deprecated` 旧代码中被调用
-- **失败处理**：sink 仅定义未调用 → 降为「待验证」并注明"sink 未在生产代码调用，仅作 dead-code 风险记录"
+- **失败处理**：sink 仅定义未调用 → 视证据强度降为「待验证」或「排除」：有间接调用迹象（如反射、动态代理、框架回调）→ 降为「待验证」并注明待确认路径；完全无调用证据 → 排除，写负证据记入 `coverage_matrix.md` 的"已排除"列
 
 ### R3. 调用点所在函数/类被生产路径加载？
 
@@ -93,7 +93,7 @@
 | R1-R6 通过 + R7 待运行时验证 | 待验证（HYPOTHESIS） | 进入 phase4，「待验证内容」字段列 R7 缺失项 |
 | R5 发现绕过 + R1-R4/R6 通过 | 已确认 | 进入 phase4，**优先级提升** |
 | 任一 R1-R6 不通过 | 排除 | 写负证据进入 `false_positive_notes.md` |
-| R2/R3 不通过（sink 未调用 / 未生产加载） | 排除（dead code 残余风险） | 写负证据 + 记入 `coverage_matrix.md` 的"已排除"列 |
+| R2/R3 不通过（sink 未调用 / 未生产加载） | 排除或待验证（视证据强度） | 完全无调用证据 → 排除，写负证据 + 记入 `coverage_matrix.md`"已排除"列；有间接调用迹象 → 待验证 |
 
 ## 3. 反向审查（应对模型"看到 sink 就报"的过激）
 
@@ -107,9 +107,22 @@
 
 **如果答案是"很可能但我没确认" → 必须按 R 算法去 Read 验证**，不得用"应该是"推论。
 
-## 4. 与 callchain_tracker.md 的关系
+## 4. 与 callchain 产物的关系（Phase 2 vs Phase 4 分级）
 
-`callchain_tracker.md` 的每个 `cc-NNN` 块顶部必须包含 R1-R7 的 7 个打勾，例如：
+**Phase 2**（`callchain_batch{N}.md`）：使用三级分层（简单/中等/复杂）+ 核心三点确认（sink 可达 / source 可控 / 防护缺失），不要求 R1-R7 完整打勾。格式示例：
+
+```
+## cc-007: SQL 注入候选 / UserController.findUser
+可达性：sink可达 ✓ | source可控 ✓ | 防护缺失 ✓
+调用链：
+  UserController.java:45  — @PathVariable String id（外部输入）
+  → UserService.java:102  — findUser(id) 参数传递
+  → UserDao.java:33       — Statement.executeQuery("...WHERE id=" + id)（sink）
+防护分析：无 schema 校验，SecurityConfig permitAll
+判定：候选成立
+```
+
+**Phase 4**（`callchain_tracker.md`，由 Phase 3 合并后供 Phase 4 使用）：R1-R7 完整验证。每个 `cc-NNN` 块顶部必须包含 R1-R7 的 7 个打勾，例如：
 
 ```
 ## cc-007: SQL 注入候选 / UserController.findUser
@@ -140,6 +153,7 @@ R7. 运行时前提       ✓  无特殊依赖
 
 ## 6. 与现有 skill 的接线
 
-- `audit-sink/SKILL.md`：在 "防护点判断" 步骤后增加 1 行 "对每条候选执行 R1-R7（按 `shared/sink_reachability_checklist.md`）"。
-- `audit-validate/SKILL.md`：在 "反向审查" 处替换抽象描述为 "对照 R1-R7 复核"。
-- `callchain_tracker.md` 格式：在每个 `cc-NNN` 块顶部加 R1-R7 标记。
+- `audit-sink/SKILL.md`（Phase 2）：在 "防护点判断" 步骤中使用三级分层（简单/中等/复杂）+ 核心三点确认（sink 可达 / source 可控 / 防护缺失）。R1-R7 完整验证在 Phase 4 执行。
+- `audit-validate/SKILL.md`（Phase 4）：在 "反向审查" 处执行 R1-R7 完整复核。
+- `callchain_batch{N}.md`（Phase 2）：每个 `cc-NNN` 块顶部标注核心三点确认结果。
+- `callchain_tracker.md`（Phase 3 合并后，供 Phase 4 使用）：每个 `cc-NNN` 块顶部加 R1-R7 完整标记。

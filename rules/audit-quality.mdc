@@ -44,7 +44,7 @@ globs: "audit/**"
 
 ## 调用链上下文保护
 
-跨 2 个以上文件的数据流追踪，必须将每一跳写入 `audit/phase2/callchain_tracker.md` 再跳转到下一个文件，防止上下文丢失。格式：
+跨 2 个以上文件的数据流追踪，必须将每一跳写入 `audit/phase2/callchain_batch{N}.md`（N 与当前批次号一致）再跳转到下一个文件，防止上下文丢失。完整 `callchain_tracker.md` 在 Phase 3 合并后生成。格式：
 
 ```
 ## com-001: [Sink 类型]

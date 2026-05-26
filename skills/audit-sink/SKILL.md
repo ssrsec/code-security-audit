@@ -63,7 +63,7 @@ description: 阶段 2 Sink-driven 数据流审计。从危险 API 向上追踪�
 
 每条高风险线索必须形成明确结论：
 
-- 外部输入可达 + 防护不足 → 进入 `candidate_findings.json`
+- 外部输入可达 + 防护不足 → 写入 `findings_batch{N}.md`（由 orchestrator Phase 3 合并生成 `candidate_findings.json`）
 - 已确认参数化/白名单/类型强约束/路径规范化/版本不受影响 → 在批次 findings 或阶段 3 反向审查中写明排除证据（**Top 10 负证据要求**）
 - 上下文不足 → 写入阻塞项，**不得**宣称该 Top 10 域完成
 
@@ -158,7 +158,7 @@ description: 阶段 2 Sink-driven 数据流审计。从危险 API 向上追踪�
 - 当前验证等级：V0 或 V1
 - 阶段 4 需要验证的条件
 
-同步写入 `audit/phase2/candidate_findings.json`（schema 见 `shared/whitebox_audit_schema.md`）。
+候选 finding 写入当前批次的 `findings_batch{N}.md`。`candidate_findings.json` 由 orchestrator 在 Phase 3 合并生成，Phase 2 agent 不直接写入。
 
 ### 5.1 Top 10 适用域负证据要求
 
@@ -193,6 +193,7 @@ description: 阶段 2 Sink-driven 数据流审计。从危险 API 向上追踪�
 
 - `audit/phase2/findings_batch{N}.md`
 - `audit/phase2/reviewed_paths_batch{N}.txt`
-- `audit/phase2/candidate_findings.json`
 - `audit/phase2/callchain_batch{N}.md`
 - `audit/phase2/primitives_batch{N}.md`
+
+> `candidate_findings.json` 由 orchestrator Phase 3 合并各批次 findings 后统一生成，本 agent 不直接写入。

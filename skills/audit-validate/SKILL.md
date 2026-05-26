@@ -64,7 +64,7 @@ description: 阶段 4 单漏洞 V0-V4 验证与 PoC 评分。对 Phase 2 候选 
 ## 输入
 
 - `audit/phase0/config.json`（获取 mode / live_target / credentials）
-- `audit/phase2/candidate_findings.json`
+- `audit/phase3/candidate_findings.json`（Phase 3 由 orchestrator 合并生成）
 - `audit/phase3/false_positive_notes.md`
 - `audit/phase1/{project_inventory.json, auth_model.md, framework_authz_map.md, dependency_list.json, secret_inventory.md, coverage_matrix.md}`
 - `shared/verification_principles.md`、`shared/poc_policy.md`（必读）
@@ -412,9 +412,9 @@ PoC 通用要求：
 | 场景 | 工具 | 环境 |
 |------|------|------|
 | Java 反序列化验证 | javachains（生成 gadget 链 payload） | Java（当前环境可用） |
-| .NET 反序列化验证 | ysoserial.net v1/v2 | Windows（当前环境不可用时向用户求助） |
-| Java 反编译 | java-decompiler MCP → cfr/procyon CLI 降级 | Java |
-| .NET 反编译 | ilspy-mcp → ilspycmd CLI 降级 | 需 .NET SDK |
+| .NET 反序列化验证 | ysoserial.net（4.x）/ ysoserial_frmv2（2.0） | Windows（当前环境不可用时向用户求助） |
+| Java 反编译 | cfr / procyon / fernflower（CLI） | Java |
+| .NET 反编译 | ilspycmd（CLI） | 需 .NET SDK |
 
 **跨平台工具处理**：当前环境（macOS）无法运行的工具，提供完整命令让用户在对应环境执行并将结果返回。详见 `scripts/tools/exploit_tools.md` 的「求助模板」。
 

@@ -17,7 +17,7 @@ tools: ["Read", "Write", "Grep", "Glob", "Bash", "LSP", "WebSearch", "WebFetch"]
 
 | 类型 | 路径 |
 |------|------|
-| 输入 | `audit/phase2/candidate_findings.json`、`audit/phase2/callchain_tracker.md`、`audit/phase3/false_positive_notes.md`、`audit/phase1/{auth_model.md, dependency_list.json, secret_inventory.md}`、`audit/phase0/config.json`（mode/live_target/credentials） |
+| 输入 | `audit/phase3/candidate_findings.json`（Phase 3 合并产出）、`audit/phase2/callchain_tracker.md`（Phase 3 合并产出）、`audit/phase3/false_positive_notes.md`、`audit/phase1/{auth_model.md, dependency_list.json, secret_inventory.md}`、`audit/phase0/config.json`（mode/live_target/credentials） |
 | 主产出 | `audit/phase4/validated_findings.md`（或 `validated_findings_group{M}.md` 并行模式） |
 | 副产出 | `audit/phase4/validation_results.json`、`audit/phase4/rejected_findings.md`、`audit/poc/<finding-id>/`（高危/严重必备） |
 
@@ -139,7 +139,7 @@ AI 是执行的安全工程师，用户是技术领导：
 必读 shared：verification_principles.md、poc_policy.md、sink_reachability_checklist.md、taint_propagation.md、external_knowledge_protocol.md。
 工具参考：scripts/tools/exploit_tools.md（javachains/ysoserial.net 等）。
 
-输入：audit/phase2/candidate_findings.json（或 group{M} 切分后的子集）
+输入：audit/phase3/candidate_findings.json（或 group{M} 切分后的子集）
 输出：audit/phase4/validated_findings.md（或 _group{M}.md）
 不输出：composite_findings.md（属于 audit-composite-agent）
 

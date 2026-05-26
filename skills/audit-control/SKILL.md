@@ -84,7 +84,7 @@ description: 阶段 2 Control-driven 审计。从端点和业务能力检查认�
 
 每个适用域必须有明确状态：
 
-- 控制缺失或可绕过 → `candidate_findings.json`
+- 控制缺失或可绕过 → 写入 `findings_batch{N}.md`（由 orchestrator Phase 3 合并生成 `candidate_findings.json`）
 - 控制存在且有代码证据 → 批次 findings 或阶段 3 反向审查中写明排除证据
 - 缺少业务语义或运行配置上下文 → 阻塞项，**不得**宣称该 Top 10 域完成
 
@@ -205,5 +205,6 @@ description: 阶段 2 Control-driven 审计。从端点和业务能力检查认�
 
 - `audit/phase2/findings_batch{N}.md`
 - `audit/phase2/reviewed_paths_batch{N}.txt`
-- `audit/phase2/candidate_findings.json`
 - `audit/phase2/primitives_batch{N}.md`
+
+> `candidate_findings.json` 由 orchestrator Phase 3 合并各批次 findings 后统一生成，本 agent 不直接写入。
