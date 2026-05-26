@@ -74,7 +74,7 @@ description: 阶段 2 Sink-driven 数据流审计。从危险 API 向上追踪�
 ## 上下文保护规则
 
 1. **精准读取**：>500 行文件不要整文件 Read。先 `rg` 定位 Sink，再 Read `offset/limit` 只读前后 50-100 行。
-2. **调用链追踪器**：跨 2 个以上文件的数据流必须将每一跳写入 `audit/phase2/callchain_tracker.md`。格式简洁实用：
+2. **调用链追踪器**：跨 2 个以上文件的数据流必须将每一跳写入 `audit/phase2/callchain_batch{N}.md`（N 与当前批次号一致，Phase 3 合并为 `callchain_tracker.md`）。格式简洁实用：
 
 ```
 ## cc-001: [Sink 类型]
@@ -109,7 +109,7 @@ description: 阶段 2 Sink-driven 数据流审计。从危险 API 向上追踪�
 - 文件导入、上传文件内容、第三方回调内容
 - 配置项或环境变量是否可被低权限用户影响
 
-优先用 LSP（goToDefinition / findReferences），不可用时用 Grep + Read 逐跳验证。跨两个以上文件的调用链必须写 `callchain_tracker.md`。
+优先用 LSP（goToDefinition / findReferences），不可用时用 Grep + Read 逐跳验证。跨两个以上文件的调用链必须写 `callchain_batch{N}.md`。
 
 ### 3. 重点关注的高级攻击向量
 
@@ -149,6 +149,7 @@ description: 阶段 2 Sink-driven 数据流审计。从危险 API 向上追踪�
 每条候选必须包含：
 
 - finding id
+- **漏洞名称**：必须以标准漏洞类型开头（如 SQL 注入、命令注入、反序列化、SSRF），括号补充关键位置或条件，使用业务语义描述。禁止直接用代码类名/方法名做名称（如"FmTemplateService.screenShot 命令注入"应改为"命令注入（模板截图功能参数未过滤）"）。
 - sink 类型、文件:行号、代码证据
 - source 入口、参数名、访问权限
 - source-to-sink 调用链（每跳标注文件:行号）
@@ -193,5 +194,5 @@ description: 阶段 2 Sink-driven 数据流审计。从危险 API 向上追踪�
 - `audit/phase2/findings_batch{N}.md`
 - `audit/phase2/reviewed_paths_batch{N}.txt`
 - `audit/phase2/candidate_findings.json`
-- `audit/phase2/callchain_tracker.md`
+- `audit/phase2/callchain_batch{N}.md`
 - `audit/phase2/primitives_batch{N}.md`

@@ -37,6 +37,7 @@
 
 - `audit/phase0/metrics.md`（必须写入：审计开始时间、LOC、文件数；若执行了反编译还需写入审计形态、反编译工具、反编译输出路径）
 - `audit/phase0/scope.md`
+- `audit/phase0/config.json`（审计模式 mode、靶场地址 live_target、凭据 credentials）
 
 **⚠️ 阶段 0 仅负责度量与反编译预处理。反编译完成后，必须正常进入阶段 1 → 2 → 3 → 4 → 5 → 6，严禁跳过任何阶段。反编译只是将编译产物转换为源代码形态，后续流程与审计源代码项目完全一致。**
 
@@ -73,6 +74,7 @@
 - `audit/phase1/sink_list.md`（危险 API 清单）
 - `audit/phase1/dependency_list.json`（依赖清单）
 - `audit/phase1/secret_inventory.md`（Secret 线索）
+- `audit/phase1/known_system_intel.md`（已知系统历史漏洞情报，未识别时标注未识别）
 
 ---
 
@@ -84,7 +86,6 @@
 
 - **Sink-driven**：以 `sink_list.md`、依赖版本和危险配置为基准，从 sink 向上追踪外部输入，确认 source-to-sink 是否可达。
 - **Control-driven**：以 `endpoint_list.md` 和 `auth_model.md` 为输入，检查认证、授权、租户隔离、资源归属、业务状态机和敏感操作。优先级 P0（未认证可达）→ P1（低权限可达）→ P2（管理员专用）。
-- **Interface-driven**：对所有公开、白名单、低权限、导出、下载、调试、日志、配置、备份、管理接口进行未授权访问和敏感信息泄露专项检查。
 - 对 T1 文件完整分析；T2/T3 先筛后读，命中入口、sink、调用链、权限链时必须完整分析。
 - 每个候选 finding 至少记录：入口、调用链、代码证据、防护点、疑似 CWE/OWASP 分类、验证等级 V0/V1、待验证条件。
 - 记录 `primitives_batch{N}.md`（原语能力片段）：将可拼接攻击原语（任意读、任意写、SSRF 可达内网、代码执行等）独立记录，供组合漏洞分析使用。
@@ -99,7 +100,7 @@
 - `audit/phase2/reviewed_paths_merged.txt`（合并审阅清单）
 - `audit/phase2/candidate_findings.json`（候选 finding 汇总）
 - `audit/phase2/primitives_batch{N}.md`（各批次原语能力片段）
-- `audit/phase2/callchain_tracker.md`（跨文件调用链存在时必须维护）
+- `audit/phase2/callchain_batch{N}.md`（跨文件调用链，按批次写入，Phase 3 合并为 `callchain_tracker.md`）
 
 ---
 
@@ -120,12 +121,20 @@
   - schema validation、白名单、资源归属校验是否有效
   - 是否为测试代码、不可达代码、死代码或无外部触发路径
   - 攻击前提是否现实
+- **跨批次数据流匹配**（大项目分批审计时，所有批次完成后必须执行）：
+  - 合并所有 `callchain_batch{N}.md` 为 `callchain_tracker.md`
+  - 提取所有批次中的「未匹配 source」和「未匹配 sink」
+  - 尝试跨批次匹配：批次 A 的未匹配 source ↔ 批次 B 的未匹配 sink（依据方法签名、参数类型、类名引用、接口实现关系，使用 Grep/Read 验证实际调用关系）
+  - 匹配成功的线索追加到 `candidate_findings.json`，标注「跨批次数据流」
+  - 匹配失败但高度可疑的（如 sink 类型为 RCE/反序列化）标注为待验证线索
+  - 输出跨批次匹配报告到 `audit/phase3/cross_batch_traces.md`
 
 **输出**：
 
 - `audit/phase2/coverage_status.json`（覆盖率状态）
 - 更新 `audit/phase1/coverage_matrix.md`
 - `audit/phase3/false_positive_notes.md`（反向审查与误报说明）
+- `audit/phase3/cross_batch_traces.md`（跨批次数据流匹配报告，大项目适用）
 
 ---
 

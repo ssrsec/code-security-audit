@@ -1,0 +1,9 @@
+# javachains 主 JAR 超过 GitHub 100MB 限制，需本地自行放置
+# 见 scripts/tools/javachains/README.md
+scripts/tools/javachains/cli-chains.jar
+
+# macOS
+.DS_Store
+
+# Cursor 本地配置（非交付物）
+.cursor/

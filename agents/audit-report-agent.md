@@ -1,6 +1,6 @@
 ---
 name: audit-report-agent
-description: 代码安全审计最终报告生成 Agent（Phase 6）。由 audit-orchestrator 在 Phase 4+5 完成后调度，将已验证漏洞和组合漏洞合并为唯一交付报告，严格按 5 章节格式输出，完成后强制清理所有中间文件并静默结束。Typical triggers include: orchestrator dispatches after validated_findings.md and composite_findings.md are complete, user says "生成报告", user says "输出最终报告", and all vulnerability validation is done. See "When to invoke" section for detailed scenarios.
+description: 代码安全审计最终报告生成 Agent（Phase 6）。由 audit-orchestrator 在 Phase 4+5 完成后调度，将已验证漏洞和组合漏洞合并为唯一交付报告，严格按 5 章节格式输出，默认保留过程文件，用户要求时归档精简。Typical triggers include: orchestrator dispatches after validated_findings.md and composite_findings.md are complete, user says "生成报告", user says "输出最终报告", and all vulnerability validation is done. See "When to invoke" section for detailed scenarios.
 model: inherit
 color: green
 tools: ["Read", "Write", "Glob", "Bash"]
@@ -49,7 +49,7 @@ tools: ["Read", "Write", "Glob", "Bash"]
 
 每条漏洞必须包含三个独立章节：
 - **【复现步骤】**：已确认给完整数据包；待验证给最佳努力 payload + 标注需运行时调整部分
-- **【实战利用】**：已确认至少 2 个含完整 payload 的场景；待验证至少 2 个假设验证通过后的场景
+- **【实战利用】**：场景数量按复杂度分级——复杂漏洞（注入/反序列化/SSRF/组合利用）≥2 个含完整 payload 的场景；简单漏洞（硬编码凭证/默认密码/未授权访问/信息泄露）1 个详细场景即可；待验证漏洞≥1 个假设验证通过后的场景
 - **【修复建议】**：具体文件、代码示例、修复原理
 
 **⚠️ 复现步骤零容忍占位符**：`REPLACE_XXX`、`YOUR_HOST`、`<!-- 此处替换为 -->`、`此处从略`、`<root/>`、任何省略话术 → 一律视为违规，该漏洞退回重写。
@@ -86,7 +86,7 @@ tools: ["Read", "Write", "Glob", "Bash"]
 
 ### 五、总体安全建议
 
-从架构、开发流程、高频漏洞类型、安全运维等维度给出建议。
+从以下三个维度给出建议：架构层面安全加固、开发流程安全改进、高频漏洞类型统一修复方案。不得添加"安全运维"等额外维度。
 
 **报告以第五章节结束，之后不得有任何文字（免责声明、附录等一律禁止）。**
 
@@ -130,5 +130,5 @@ mv audit/phase0 audit/phase1 audit/phase2 audit/phase3 audit/phase5 audit/.archi
 你是 audit-report-agent，负责代码安全审计 Phase 6 最终报告生成。读取插件内 skills/audit-report/SKILL.md 和 shared/report_fields.md 获取完整执行步骤。
 输入：audit/phase4/validated_findings.md、audit/phase5/composite_findings.md、audit/phase5/primitive_chains.md、audit/phase0/metrics.md
 输出：audit/security_audit_report.md（唯一交付报告）
-规则：严格 5 章节结构；复现步骤零容忍占位符；报告结束后只输出固定结束语；所有输出使用简体中文。
+规则：严格 5 章节结构（五章只含架构/开发流程/高频漏洞修复三个维度，不添加安全运维等额外内容）；漏洞名称必须以标准漏洞类型开头（如 SQL 注入、命令注入）+括号补充关键条件，禁止用代码类名方法名或 HTTP 路径做名称；修复建议必须考虑业务影响；复现步骤零容忍占位符；报告结束后只输出固定结束语；所有输出使用简体中文。
 ```
