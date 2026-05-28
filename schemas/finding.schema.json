@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/finding.schema.json",
+  "title": "Audit Finding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "sourceIds",
+    "status",
+    "title",
+    "category",
+    "severity",
+    "validationLevel",
+    "authLevel",
+    "entry",
+    "callChain",
+    "impacts",
+    "cvss",
+    "preconditions",
+    "requiresCapabilities",
+    "providesCapabilities",
+    "evidenceRefs",
+    "pocRefs",
+    "fix"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "finding/v1" },
+    "id": { "type": "string", "pattern": "^vul-[0-9]{3,}$" },
+    "sourceIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "status": { "enum": ["candidate", "challenged", "confirmed", "hypothesis", "rejected", "deferred", "reported", "patched"] },
+    "title": { "type": "string", "minLength": 1 },
+    "category": { "enum": ["injection", "authn", "authz", "file", "ssrf", "deserialization", "rce", "secret", "crypto", "business", "supply-chain", "misconfig", "chain"] },
+    "severity": { "enum": ["critical", "high", "medium", "low"] },
+    "validationLevel": { "enum": ["V0", "V1", "V2", "V3", "V4"] },
+    "authLevel": { "enum": ["none", "low-privileged", "admin", "unknown"] },
+    "operationClasses": {
+      "type": "array",
+      "items": { "enum": ["read-only", "write-capable", "state-changing", "destructive", "unknown"] },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "location"],
+      "properties": {
+        "type": { "enum": ["http", "rpc", "mq", "cli", "scheduler", "file", "unknown"] },
+        "method": { "type": "string" },
+        "path": { "type": "string" },
+        "location": { "type": "string", "minLength": 1 }
+      }
+    },
+    "callChain": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^cc-[A-Za-z0-9._-]+$" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "impacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confidentiality", "integrity", "availability"],
+      "properties": {
+        "confidentiality": { "enum": ["none", "low", "high"] },
+        "integrity": { "enum": ["none", "low", "high"] },
+        "availability": { "enum": ["none", "low", "high"] }
+      }
+    },
+    "cvss": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vector", "score", "rationale"],
+      "properties": {
+        "vector": {
+          "type": "string",
+          "pattern": "^CVSS:3\\.[01]/AV:[NALP]/AC:[LH]/PR:[NLH]/UI:[NR]/S:[UC]/C:[NLH]/I:[NLH]/A:[NLH]$"
+        },
+        "score": { "type": "number", "minimum": 0, "maximum": 10 },
+        "rationale": { "type": "object" }
+      }
+    },
+    "preconditions": { "type": "array", "items": { "type": "string" } },
+    "requiresCapabilities": { "type": "array", "items": { "type": "string", "pattern": "^cap-[A-Za-z0-9._-]+$" }, "uniqueItems": true },
+    "providesCapabilities": { "type": "array", "items": { "type": "string", "pattern": "^cap-[A-Za-z0-9._-]+$" }, "uniqueItems": true },
+    "evidenceRefs": { "type": "array", "items": { "type": "string", "pattern": "^ev-[A-Za-z0-9._-]+$" }, "uniqueItems": true },
+    "pocRefs": { "type": "array", "items": { "type": "string", "pattern": "^req-[A-Za-z0-9._-]+$" }, "uniqueItems": true },
+    "cleanupRefs": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "fix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["emergency", "longTerm", "businessImpact"],
+      "properties": {
+        "emergency": { "type": "string" },
+        "longTerm": { "type": "string" },
+        "businessImpact": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/attack-surface.schema.json",
+  "title": "Attack Surface",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "projectId", "entries", "sinks", "secrets", "dependencies", "highValueAssets", "trustBoundaries"],
+  "properties": {
+    "schemaVersion": { "const": "attack-surface/v1" },
+    "projectId": { "type": "string" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "location"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["http", "rpc", "mq", "cli", "scheduler", "file", "unknown"] },
+          "method": { "type": "string" },
+          "path": { "type": "string" },
+          "file": { "type": "string" },
+          "line": { "type": "integer", "minimum": 0 },
+          "location": { "type": "string" },
+          "evidence": { "type": "string" },
+          "authRequired": { "enum": ["none", "low-privileged", "admin", "unknown"] }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "file", "line", "symbol", "evidence"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "type": "string" },
+          "file": { "type": "string" },
+          "line": { "type": "integer", "minimum": 0 },
+          "symbol": { "type": "string" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "sinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "file", "line", "symbol", "evidence"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "type": "string" },
+          "file": { "type": "string" },
+          "line": { "type": "integer", "minimum": 0 },
+          "symbol": { "type": "string" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "secrets": { "type": "array", "items": { "type": "object" } },
+    "dependencies": { "type": "array", "items": { "type": "object" } },
+    "compiledArtifacts": { "type": "array", "items": { "type": "object" } },
+    "highValueAssets": { "type": "array", "items": { "type": "string" } },
+    "trustBoundaries": { "type": "array", "items": { "type": "string" } }
+  }
+}

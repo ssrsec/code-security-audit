@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/callchain.schema.json",
+  "title": "Source To Sink Call Chain",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "findingId", "hops", "reachability"],
+  "properties": {
+    "schemaVersion": { "const": "callchain/v1" },
+    "id": { "type": "string", "pattern": "^cc-[A-Za-z0-9._-]+$" },
+    "findingId": { "type": "string", "pattern": "^vul-[0-9]{3,}$" },
+    "hops": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "file", "lineStart", "symbol", "evidence", "taintState"],
+        "properties": {
+          "role": { "enum": ["entry", "source", "propagator", "transformer", "sanitizer", "branch", "sink", "control"] },
+          "file": { "type": "string", "minLength": 1 },
+          "lineStart": { "type": "integer", "minimum": 0 },
+          "lineEnd": { "type": "integer", "minimum": 0 },
+          "symbol": { "type": "string" },
+          "evidence": { "type": "string", "minLength": 1 },
+          "taintState": { "enum": ["source", "propagated", "transformed", "sanitized", "sink", "conditional", "unknown"] }
+        }
+      }
+    },
+    "reachability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sinkReachable", "sourceControllable", "protectionMissing"],
+      "properties": {
+        "sinkReachable": { "type": "boolean" },
+        "sourceControllable": { "type": "boolean" },
+        "protectionMissing": { "type": "boolean" },
+        "notes": { "type": "string" }
+      }
+    },
+    "sanitizersObserved": { "type": "array", "items": { "type": "string" } },
+    "sanitizerVerdict": { "type": "string" },
+    "branchAnalysis": { "type": "string" }
+  }
+}

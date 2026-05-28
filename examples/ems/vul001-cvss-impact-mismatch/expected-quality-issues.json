@@ -1,0 +1,14 @@
+{
+  "case": "ems:vul-001-cvss-impact-mismatch",
+  "gate": "all",
+  "expectedIssues": [
+    {
+      "category": "cvss-impact-mismatch",
+      "contains": "integrity"
+    },
+    {
+      "category": "missing-cleanup",
+      "contains": "write/state-changing"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/validation-queue.schema.json",
+  "title": "Validation Queue Task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "taskId", "findingId", "priority", "status", "requiredCapabilities", "nextAction", "safeLevel"],
+  "properties": {
+    "schemaVersion": { "const": "validation-task/v1" },
+    "taskId": { "type": "string", "pattern": "^val-[A-Za-z0-9._-]+$" },
+    "findingId": { "type": "string", "pattern": "^vul-[0-9]{3,}$" },
+    "priority": { "enum": ["P0", "P1", "P2", "P3"] },
+    "status": { "enum": ["pending", "claimed", "blocked", "completed", "failed", "skipped"] },
+    "requiredCapabilities": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "candidateProviders": { "type": "array", "items": { "type": "string", "pattern": "^cap-[A-Za-z0-9._-]+$" }, "uniqueItems": true },
+    "blockerType": {
+      "enum": [
+        "none",
+        "live-target-down",
+        "partial-deploy",
+        "missing-service",
+        "missing-table",
+        "missing-logicflow",
+        "missing-sqlmap",
+        "no-http-entry",
+        "no-diff",
+        "auth-required",
+        "needs-user-hint",
+        "tooling-unavailable"
+      ]
+    },
+    "nextAction": { "type": "string", "minLength": 1 },
+    "safeLevel": { "enum": ["L1", "L2", "L3"] },
+    "attempts": { "type": "array", "items": { "type": "object" } }
+  }
+}

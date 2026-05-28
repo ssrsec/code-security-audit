@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/capability.schema.json",
+  "title": "Reusable Attack Capability",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "providerFinding", "name", "provides", "requires", "authLevel", "operationClass", "evidenceRefs", "requestRefs", "constraints", "confidence"],
+  "properties": {
+    "schemaVersion": { "const": "capability/v1" },
+    "id": { "type": "string", "pattern": "^cap-[A-Za-z0-9._-]+$" },
+    "providerFinding": { "type": "string", "pattern": "^vul-[0-9]{3,}$" },
+    "name": { "type": "string", "minLength": 1 },
+    "provides": { "type": "array", "minItems": 1, "items": { "type": "string" }, "uniqueItems": true },
+    "requires": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "authLevel": { "enum": ["none", "low-privileged", "admin", "unknown"] },
+    "operationClass": { "enum": ["read-only", "write-capable", "state-changing", "destructive", "unknown"] },
+    "evidenceRefs": { "type": "array", "items": { "type": "string", "pattern": "^ev-[A-Za-z0-9._-]+$" }, "uniqueItems": true },
+    "requestRefs": { "type": "array", "items": { "type": "string", "pattern": "^req-[A-Za-z0-9._-]+$" }, "uniqueItems": true },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "chainDepth": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "confidence": { "enum": ["confirmed", "hypothesis"] },
+    "revokedReason": { "type": "string" }
+  }
+}

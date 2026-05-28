@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/http-request.schema.json",
+  "title": "Raw HTTP Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "findingId", "raw", "method", "path", "host", "authUsage", "obtainedBy", "purpose"],
+  "properties": {
+    "schemaVersion": { "const": "http-request/v1" },
+    "id": { "type": "string", "pattern": "^req-[A-Za-z0-9._-]+$" },
+    "findingId": { "type": "string", "pattern": "^vul-[0-9]{3,}$" },
+    "raw": { "type": "string", "minLength": 20 },
+    "method": { "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"] },
+    "path": { "type": "string", "pattern": "^/" },
+    "host": { "type": "string", "minLength": 1 },
+    "contentType": { "type": "string" },
+    "authUsage": { "enum": ["none", "cookie", "bearer", "basic", "custom"] },
+    "obtainedBy": { "type": "array", "items": { "type": "string", "pattern": "^req-[A-Za-z0-9._-]+$" }, "uniqueItems": true },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "providedBy", "extractor"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+          "providedBy": { "type": "string", "pattern": "^req-[A-Za-z0-9._-]+$" },
+          "extractor": { "enum": ["header", "jsonpath", "regex", "cookie"] },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "safeLevel": { "enum": ["L1", "L2", "L3"] },
+    "bodySha256": { "type": "string" },
+    "purpose": { "enum": ["baseline", "exploit", "proof", "cleanup", "post-cleanup-assert", "login", "capability-provider"] }
+  }
+}

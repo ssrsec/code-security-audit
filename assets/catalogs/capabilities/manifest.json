@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "asset/v1",
+  "id": "catalogs.capabilities",
+  "name": "Capability vocabulary",
+  "description": "Reusable attacker capability vocabulary for provider/consumer chains in v2.",
+  "sources": [
+    {
+      "path": "assets/catalogs/capabilities/README.md",
+      "mode": "canonical"
+    }
+  ],
+  "format": "markdown",
+  "risk": "safe",
+  "license": "internal",
+  "usedBy": ["audit-worker", "validate-worker", "chain-worker"],
+  "inputs": ["finding evidence", "primitive evidence", "operation class"],
+  "outputs": ["capability name", "provides", "requires", "constraints"],
+  "review": {
+    "lastReviewedAt": "2026-05-28",
+    "reviewedBy": "gpt-5.5",
+    "openQuestions": [
+      "Convert capability vocabulary to JSON after EMS capability regression expands beyond vul-127 and vul-131."
+    ]
+  },
+  "regressionCases": ["ems:vul-127", "ems:vul-131"],
+  "migrationNotes": [
+    "v2 uses capability provider/consumer fields instead of markdown primitive blocks."
+  ]
+}

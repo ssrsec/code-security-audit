@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/project.schema.json",
+  "title": "Project Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "projectId", "projectRoot", "auditMode", "sourceShape", "languages", "frameworks", "authModel", "unknowns"],
+  "properties": {
+    "schemaVersion": { "const": "project/v1" },
+    "projectId": { "type": "string", "minLength": 1 },
+    "projectRoot": { "type": "string", "minLength": 1 },
+    "auditMode": { "enum": ["redteam", "full"] },
+    "sourceShape": { "enum": ["source-only", "compiled-only", "mixed"] },
+    "languages": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "frameworks": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "buildSystems": { "type": "array", "items": { "type": "string" } },
+    "runtimeServices": { "type": "array", "items": { "type": "string" } },
+    "dataStores": { "type": "array", "items": { "type": "string" } },
+    "knownSystems": { "type": "array", "items": { "type": "object" } },
+    "compiledArtifacts": { "type": "array", "items": { "type": "object" } },
+    "decompilation": { "type": "object" },
+    "authModel": { "type": "object" },
+    "unknowns": { "type": "array", "items": { "type": "string" } }
+  }
+}

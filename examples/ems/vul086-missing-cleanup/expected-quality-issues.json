@@ -1,0 +1,10 @@
+{
+  "case": "ems:vul-086-missing-cleanup",
+  "gate": "all",
+  "expectedIssues": [
+    {
+      "category": "missing-cleanup",
+      "contains": "write/state-changing"
+    }
+  ]
+}

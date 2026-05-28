@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/decompilation-plan.schema.json",
+  "title": "Decompilation Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "createdAt", "projectId", "required", "tasks", "limitations"],
+  "properties": {
+    "schemaVersion": { "const": "decompilation-plan/v1" },
+    "createdAt": { "type": "string", "minLength": 1 },
+    "projectId": { "type": "string", "minLength": 1 },
+    "required": { "type": "boolean" },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "taskId",
+          "artifactId",
+          "artifactPath",
+          "platform",
+          "artifactType",
+          "recommendedAssets",
+          "outputDir",
+          "status",
+          "blockerType"
+        ],
+        "properties": {
+          "taskId": { "type": "string", "pattern": "^decompile-[A-Za-z0-9._-]+$" },
+          "artifactId": { "type": "string", "minLength": 1 },
+          "artifactPath": { "type": "string", "minLength": 1 },
+          "platform": { "type": "string", "minLength": 1 },
+          "artifactType": { "type": "string", "minLength": 1 },
+          "recommendedAssets": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "outputDir": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["planned", "running", "completed", "failed", "blocked"] },
+          "blockerType": {
+            "enum": [
+              "none",
+              "decompiler-not-configured",
+              "tooling-unavailable",
+              "unsupported-artifact",
+              "obfuscated",
+              "failed"
+            ]
+          },
+          "tool": { "type": "string" },
+          "toolVersion": { "type": "string" },
+          "artifactSha256": { "type": "string" },
+          "outputSha256": { "type": "string" },
+          "limitations": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  }
+}

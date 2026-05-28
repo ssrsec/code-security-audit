@@ -1,0 +1,9 @@
+{
+  "gate": "render",
+  "expectedIssues": [
+    {
+      "category": "bad-placeholder",
+      "contains": "TODO"
+    }
+  ]
+}

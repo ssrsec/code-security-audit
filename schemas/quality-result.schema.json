@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/quality-result.schema.json",
+  "title": "Quality Gate Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "runId", "gate", "target", "summary", "issues", "exit"],
+  "properties": {
+    "schemaVersion": { "const": "quality-result/v1" },
+    "runId": { "type": "string", "pattern": "^qr-[A-Za-z0-9._-]+$" },
+    "gate": { "enum": ["schema", "semantic", "poc", "render", "regression", "all"] },
+    "target": { "type": "string" },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocker", "error", "warning", "info"],
+      "properties": {
+        "blocker": { "type": "integer", "minimum": 0 },
+        "error": { "type": "integer", "minimum": 0 },
+        "warning": { "type": "integer", "minimum": 0 },
+        "info": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "category", "message", "fixable", "autoFixed"],
+        "properties": {
+          "severity": { "enum": ["blocker", "error", "warning", "info"] },
+          "category": { "type": "string" },
+          "path": { "type": "string" },
+          "message": { "type": "string", "minLength": 1 },
+          "expected": {},
+          "actual": {},
+          "fixable": { "type": "boolean" },
+          "autoFixed": { "type": "boolean" }
+        }
+      }
+    },
+    "exit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "reason"],
+      "properties": {
+        "code": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "reason": { "type": "string" }
+      }
+    }
+  }
+}

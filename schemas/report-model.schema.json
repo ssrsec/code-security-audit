@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/report-model.schema.json",
+  "title": "Internal Report Model",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "project", "coverage", "summary", "findings", "chains", "recommendations", "limitations"],
+  "properties": {
+    "schemaVersion": { "const": "report-model/v1" },
+    "project": { "type": "object" },
+    "coverage": { "type": "object" },
+    "summary": { "type": "object" },
+    "findings": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^vul-[0-9]{3,}$" },
+      "uniqueItems": true
+    },
+    "chains": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^chain-[A-Za-z0-9._-]+$" },
+      "uniqueItems": true
+    },
+    "recommendations": { "type": "array", "items": { "type": "object" } },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "evidencePolicy": { "const": "full-internal-evidence-no-redaction" }
+  }
+}

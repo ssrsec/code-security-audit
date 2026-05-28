@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/mutation.schema.json",
+  "title": "Live Target Mutation Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "findingId", "operationLevel", "mutationType", "baselineRef", "mutationRef", "proofRef"],
+  "properties": {
+    "schemaVersion": { "const": "mutation/v1" },
+    "id": { "type": "string", "pattern": "^mut-[A-Za-z0-9._-]+$" },
+    "findingId": { "type": "string", "pattern": "^vul-[0-9]{3,}$" },
+    "operationLevel": { "enum": ["L1", "L2", "L3"] },
+    "mutationType": { "enum": ["db-insert", "db-update", "db-delete", "file-write", "file-delete", "role-change", "config-change", "session-change"] },
+    "baselineRef": { "type": "string", "pattern": "^ev-[A-Za-z0-9._-]+$" },
+    "mutationRef": { "type": "string", "pattern": "^ev-[A-Za-z0-9._-]+$" },
+    "proofRef": { "type": "string", "pattern": "^ev-[A-Za-z0-9._-]+$" },
+    "cleanupRef": { "type": "string", "pattern": "^ev-[A-Za-z0-9._-]+$" },
+    "postCleanupAssertRef": { "type": "string", "pattern": "^ev-[A-Za-z0-9._-]+$" },
+    "cleanupUnavailableReason": { "type": "string" },
+    "explicitUserApprovalRef": { "type": "string" },
+    "affectedObjects": { "type": "array", "items": { "type": "string" } },
+    "residualRisk": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "operationLevel": { "const": "L2" } } },
+      "then": {
+        "anyOf": [
+          { "required": ["cleanupRef", "postCleanupAssertRef"] },
+          { "required": ["cleanupUnavailableReason"] }
+        ]
+      }
+    },
+    {
+      "if": { "properties": { "operationLevel": { "const": "L3" } } },
+      "then": { "required": ["explicitUserApprovalRef"] }
+    }
+  ]
+}

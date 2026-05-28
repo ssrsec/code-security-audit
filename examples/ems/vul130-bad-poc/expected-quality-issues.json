@@ -1,0 +1,18 @@
+{
+  "case": "ems:vul-130-bad-poc",
+  "gate": "poc",
+  "expectedIssues": [
+    {
+      "category": "bad-placeholder",
+      "contains": "由客户端 jar 维护"
+    },
+    {
+      "category": "bad-placeholder",
+      "contains": "(同上)"
+    },
+    {
+      "category": "payload-ellipsis",
+      "contains": "ellipsis"
+    }
+  ]
+}

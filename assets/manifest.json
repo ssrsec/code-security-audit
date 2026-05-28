@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "assets-manifest/v1",
+  "generatedAt": "2026-05-28T00:00:00+08:00",
+  "policy": {
+    "noManifestNoAsset": true,
+    "noSoftDisciplineAssets": true,
+    "internalEvidenceRedaction": false
+  },
+  "assets": [
+    {
+      "id": "payloads.sqli",
+      "path": "payloads/sqli/",
+      "type": "payload-template",
+      "sources": [
+        {
+          "path": "assets/payloads/sqli/README.md",
+          "mode": "canonical"
+        }
+      ],
+      "format": "markdown",
+      "risk": "dual-use",
+      "usedBy": ["validate-worker", "poc-gate", "regression-gate"],
+      "regressionCases": ["ems:vul-001", "ems:vul-126", "ems:vul-127", "ems:vul-131"],
+      "status": "migrated",
+      "notes": "Initial asset preserves dialect and safe proof strategy; concrete payloads remain available for authorized internal validation."
+    },
+    {
+      "id": "catalogs.capabilities",
+      "path": "catalogs/capabilities/",
+      "type": "catalog",
+      "sources": [
+        {
+          "path": "assets/catalogs/capabilities/README.md",
+          "mode": "canonical"
+        }
+      ],
+      "format": "markdown",
+      "risk": "safe",
+      "usedBy": ["audit-worker", "validate-worker", "chain-worker"],
+      "regressionCases": ["ems:vul-127", "ems:vul-131"],
+      "status": "migrated",
+      "notes": "Defines reusable capability vocabulary for provider/consumer chains."
+    },
+    {
+      "id": "catalogs.attack-chains",
+      "path": "catalogs/attack-chains/",
+      "type": "catalog",
+      "sources": [
+        {
+          "path": "assets/catalogs/attack-chains/README.md",
+          "mode": "canonical"
+        }
+      ],
+      "format": "markdown",
+      "risk": "dual-use",
+      "usedBy": ["chain-worker", "regression-gate"],
+      "regressionCases": ["ems:vul-127", "ems:vul-131"],
+      "status": "migrated",
+      "notes": "Unifies finding-chain and capability-chain concepts; does not preserve the legacy rule that combined severity must strictly increase."
+    },
+    {
+      "id": "tools.decompilation",
+      "path": "decompilation/",
+      "type": "tool-wrapper",
+      "sources": [
+        {
+          "path": "assets/decompilation/README.md",
+          "mode": "canonical"
+        },
+        {
+          "path": "scripts/tools/decompilers/",
+          "mode": "reference"
+        }
+      ],
+      "format": "markdown",
+      "risk": "safe",
+      "usedBy": ["recon-worker", "production-check"],
+      "regressionCases": ["generic:compiled-jvm-app"],
+      "status": "planned",
+      "notes": "Directory reserved; content migration requires preserving tool paths and OS-specific wrappers."
+    }
+  ]
+}

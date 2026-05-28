@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-security-audit.local/schemas/attack-chain.schema.json",
+  "title": "Attack Chain",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "chainType", "status", "nodes", "edges", "resultingCapability", "valueIncrease"],
+  "properties": {
+    "schemaVersion": { "const": "attack-chain/v1" },
+    "id": { "type": "string", "pattern": "^chain-[A-Za-z0-9._-]+$" },
+    "chainType": { "enum": ["finding-chain", "capability-chain", "mixed"] },
+    "status": { "enum": ["confirmed", "hypothesis"] },
+    "nodes": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "id"],
+        "properties": {
+          "type": { "enum": ["finding", "capability"] },
+          "id": { "type": "string" }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "transfer"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "transfer": { "type": "string", "minLength": 1 },
+          "evidenceRefs": { "type": "array", "items": { "type": "string", "pattern": "^ev-[A-Za-z0-9._-]+$" } }
+        }
+      }
+    },
+    "resultingCapability": { "type": "string" },
+    "valueIncrease": {
+      "type": "array",
+      "items": { "enum": ["reduces-preconditions", "increases-impact", "improves-reliability", "bypasses-network", "bypasses-auth", "enables-followup"] },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "reproduceRefs": { "type": "array", "items": { "type": "string", "pattern": "^req-[A-Za-z0-9._-]+$" } },
+    "cleanupRefs": { "type": "array", "items": { "type": "string" } }
+  }
+}

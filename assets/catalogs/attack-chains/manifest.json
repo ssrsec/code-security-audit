@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "asset/v1",
+  "id": "catalogs.attack-chains",
+  "name": "Attack chain rules",
+  "description": "Rules and examples for composing findings and capabilities into attack chains.",
+  "sources": [
+    {
+      "path": "assets/catalogs/attack-chains/README.md",
+      "mode": "canonical"
+    }
+  ],
+  "format": "markdown",
+  "risk": "dual-use",
+  "license": "internal",
+  "usedBy": ["chain-worker", "regression-gate"],
+  "inputs": ["findings", "capabilities", "evidence"],
+  "outputs": ["attack-chain", "valueIncrease", "breakpoints"],
+  "review": {
+    "lastReviewedAt": "2026-05-28",
+    "reviewedBy": "gpt-5.5",
+    "openQuestions": [
+      "Convert high-value chain patterns into JSON rules after chain-worker regression expands."
+    ]
+  },
+  "regressionCases": ["ems:vul-127", "ems:vul-131"],
+  "migrationNotes": [
+    "Finding-chain and capability-chain concepts are unified in the v2 attack graph.",
+    "The legacy rule requiring combined severity to strictly exceed the highest individual severity is intentionally not preserved."
+  ]
+}
