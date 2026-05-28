@@ -24,7 +24,7 @@
   },
   "regressionCases": ["ems:vul-127", "ems:vul-131"],
   "migrationNotes": [
-    "Finding-chain and capability-chain concepts are unified in the v2 attack graph.",
-    "The legacy rule requiring combined severity to strictly exceed the highest individual severity is intentionally not preserved."
+    "Finding-chain and capability-chain concepts are unified in the production attack graph.",
+    "A chain is valuable when it lowers preconditions, improves reliability, expands impact, or unlocks a new capability."
   ]
 }

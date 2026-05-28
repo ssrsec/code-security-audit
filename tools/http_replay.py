@@ -130,7 +130,7 @@ def execute_request(req: dict[str, Any], base_url: str | None, timeout: float, i
 
 
 def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(description="Replay v2 HTTP requests")
+    parser = argparse.ArgumentParser(description="Replay HTTP requests")
     parser.add_argument("--audit-dir", default="audit-v2")
     parser.add_argument("--requests-file")
     parser.add_argument("--base-url", help="override scheme/host/optional path prefix")

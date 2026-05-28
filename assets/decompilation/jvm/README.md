@@ -13,4 +13,4 @@ Use for `.jar`, `.war`, `.ear`, and `.class` artifacts.
 
 ## Tooling Notes
 
-The legacy project references decompiler tooling under `scripts/tools/decompilers/`. v2 should keep tool wrappers OS-aware and avoid assuming one platform-specific binary.
+Decompiler tooling lives under `scripts/tools/decompilers/`. Tool wrappers must remain OS-aware and avoid assuming one platform-specific binary.

@@ -2,7 +2,7 @@
   "schemaVersion": "asset/v1",
   "id": "catalogs.capabilities",
   "name": "Capability vocabulary",
-  "description": "Reusable attacker capability vocabulary for provider/consumer chains in v2.",
+  "description": "Reusable attacker capability vocabulary for provider/consumer chains.",
   "sources": [
     {
       "path": "assets/catalogs/capabilities/README.md",
@@ -24,6 +24,6 @@
   },
   "regressionCases": ["ems:vul-127", "ems:vul-131"],
   "migrationNotes": [
-    "v2 uses capability provider/consumer fields instead of markdown primitive blocks."
+    "Capabilities use provider/consumer fields instead of markdown primitive blocks."
   ]
 }

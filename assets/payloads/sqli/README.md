@@ -1,6 +1,6 @@
 # SQL Injection Payload Asset
 
-This asset tracks SQL injection validation guidance for v2. It is sourced from legacy `scripts/tools/payload_templates/sqli_by_dialect.md` but is not a verbatim directory copy.
+This asset tracks SQL injection validation guidance for authorized production audits.
 
 ## Production Rules
 

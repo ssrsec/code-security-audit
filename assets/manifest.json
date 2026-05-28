@@ -56,7 +56,7 @@
       "usedBy": ["chain-worker", "regression-gate"],
       "regressionCases": ["ems:vul-127", "ems:vul-131"],
       "status": "migrated",
-      "notes": "Unifies finding-chain and capability-chain concepts; does not preserve the legacy rule that combined severity must strictly increase."
+      "notes": "Unifies finding-chain and capability-chain concepts; chain value is based on precondition reduction, reliability, impact expansion, or new capability unlock."
     },
     {
       "id": "tools.decompilation",

@@ -1,6 +1,6 @@
 # Attack Chain Catalog
 
-v2 unifies legacy vulnerability combinations and primitive chains into one attack graph model.
+The production attack graph composes findings and capabilities into one chain model.
 
 ## Chain Requirements
 

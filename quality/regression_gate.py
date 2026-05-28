@@ -60,7 +60,7 @@ def run_case(case_dir: Path, quality_gate) -> tuple[dict[str, Any], list[dict[st
 
 
 def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(description="Run v2 regression gate")
+    parser = argparse.ArgumentParser(description="Run regression gate")
     parser.add_argument("--examples-dir", default="examples/ems")
     args = parser.parse_args(argv)
 

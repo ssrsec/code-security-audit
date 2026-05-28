@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SQLite state utility for code-security-audit v2."""
+"""SQLite state utility for code-security-audit."""
 
 from __future__ import annotations
 

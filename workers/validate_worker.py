@@ -91,7 +91,7 @@ def make_task(idx: int, finding: dict[str, Any], capabilities: list[dict[str, An
 
 
 def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(description="Run v2 validate worker")
+    parser = argparse.ArgumentParser(description="Run validate worker")
     parser.add_argument("--audit-dir", default="audit-v2")
     args = parser.parse_args(argv)
 

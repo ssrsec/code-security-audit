@@ -1,8 +1,8 @@
-# v2 State Protocol
+# State Protocol
 
 ## 权威存储
 
-v2 使用 SQLite 作为权威状态存储：
+生产协议使用 SQLite 作为权威状态存储：
 
 ```text
 audit-v2/state.sqlite
@@ -82,6 +82,6 @@ SQLite 必须能表达：
 
 - 以 Markdown 文件作为权威状态。
 - 多 worker 直接写同一最终文件。
-- 删除历史 evidence。
+- 删除已有 evidence。
 - 覆盖已存在 request/evidence。
 - 无事件修改 finding 状态。

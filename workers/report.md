@@ -52,7 +52,7 @@ python3 workers/report_worker.py --audit-dir audit-v2
 
 ## 禁止
 
-- 不直接读取 legacy `validated_findings.md` 生成最终报告。
+- 不从手写 Markdown 反解析 finding 生成最终报告。
 - 不把缺证据 finding 写成 confirmed。
 - 不隐藏 L2 cleanup failure。
 - 不用链接替代关键复现内容。

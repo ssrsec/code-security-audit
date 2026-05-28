@@ -24,7 +24,7 @@
   },
   "regressionCases": ["ems:vul-001", "ems:vul-126", "ems:vul-127", "ems:vul-131"],
   "migrationNotes": [
-    "Canonical v2 asset records SQL validation rules without depending on legacy prompt files.",
+    "Canonical asset records SQL validation rules for authorized audits.",
     "Destructive SQL is not part of default validation; L2 writes require mutation evidence and cleanup."
   ]
 }

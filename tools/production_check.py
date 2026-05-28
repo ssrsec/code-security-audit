@@ -482,7 +482,7 @@ def run_entrypoint_guard() -> dict[str, Any]:
     root_text = root_skill_path.read_text(encoding="utf-8")
     root_is_production_default = (
         "name: code-security-audit\n" in root_text
-        and "本入口默认执行生产协议" in root_text
+        and "本入口默认执行代码安全审计生产协议" in root_text
         and "python3 tools/production_check.py" in root_text
         and "audit-v2/" in root_text
     )
